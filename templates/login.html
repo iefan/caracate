@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="zh">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title>系统登录</title>
+
+	<style type="text/css"></style>
+	<link rel="stylesheet" type="text/css" href="/static/mycss/my.css" />
+	<link rel="stylesheet" type="text/css" href="/static/mycss/marketing.css" />
+	<link rel="stylesheet" type="text/css" href="/static/mycss/normalize.css" />
+	<link rel="stylesheet" type="text/css" href="/static/mycss/pure-min.css" />
+
+<body class="small login">
+	<div id="header">
+		<div class="pure-u-1 logintitle">
+			<h1 class="logintitle">汕头市残联白内障数据库</h1>
+		</div>
+	</div>
+
+	<div class="pure-g-r content-ribbon logininput">
+		<div class="pure-u-1">
+			<form class="pure-form pure-form-aligned" method="post" action="{% url 'caracate.views.myuser_login' %}">
+				{% csrf_token %}				
+				<table class="pure-table pure-table-horizontal ">
+				{{ form.as_table }}
+				</table>
+				<br/>
+				<div class="pure-u-1" align="center">
+					<input  class="pure-button pure-button-primary" type="submit" tabindex="4" value="登录"></div>
+				<input type="hidden" name="next" value="{{ next }}" />
+			</form>
+		</div>
+	</div>
+
+	<div class="footer pure-u-1">Copyright &copy; 2013 &nbsp;  汕头市残联康复科</div>
+</body>
+</html>
