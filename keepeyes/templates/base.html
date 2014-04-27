@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="zh">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+  <title>汕头市白内障数据库系统—{% block title %}{% endblock %}</title>
+
+  <link rel="stylesheet" type="text/css" href="/static/mycss/my.css" />
+  <link rel="stylesheet" type="text/css" href="/static/mycss/marketing.css" />
+  <link rel="stylesheet" type="text/css" href="/static/mycss/normalize.css" />
+  <link rel="stylesheet" type="text/css" href="/static/mycss/pure-min.css" />
+  <script type='text/javascript' src='/static/admin/js/jquery.min.js'></script>
+  {% block othercssjs %}{% endblock %}
+  <style></style>
+  <script type="text/javascript">
+$(document).ready(function(){ 
+  $("#nav ul.child").removeClass("child");
+  $("#nav li").has("ul").hover(function(){
+    $(this).addClass("current").children("ul").fadeIn();
+  }, function() {
+    $(this).removeClass("current").children("ul").hide();
+  });
+});
+</script>
+
+</head>
+
+<body>
+  <div class="pure-u-1" id="user_nav">
+    {% if user.is_authenticated %}
+    <span>单位编号： <span id="username"> {{ user.unitsn }} </span>&nbsp;</span>
+    <span>单位名称： <span id="userunitname"> {{ user.unitname }} </span>  &nbsp; </span> 
+    <span>操作员： <span id="useroperatorname"> {{ user.operatorname }} </span>  &nbsp; </span> | &nbsp;
+    <span ><a id="exitbtn" href="/logout/">退出</a></span>
+    {% else %}
+    <span><a style="color:red;" href="/login/" class="welcome" title="登录">您还未登录，请登录!</a></span>
+    {% endif %}
+    </div>
+  <div id="page-wrap">
+    <div id="content">
+      <ul id="nav">
+        <li>
+          <a href="#">系统维护</a>
+          <ul class="child">
+            <li>
+              <a href="/changepassword/">修改密码</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">白内障数据库</a>
+          <ul class="child">
+            <li>
+              <a href="/ccselect/">信息总表</a>
+            </li>
+            <li>
+              <a href="/ccinput/">信息录入</a>
+            </li>
+            <li>
+              <a href="/ccoutputxls/">信息导出</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">市残联审核</a>
+          <ul class="child">
+            <li>
+              <a href="/ccapprovallist/">申核批准</a>
+            </li>            
+            <li>
+              <a href="/ccapprovallistover/">核结归档</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">白内障业务说明</a>
+          <ul class="child">
+            <li>
+              <a href="/ccdesc/">业务说明</a>
+              <a href="/ccphone/">通讯录</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <br/>
+  <br/>
+  {% block content %}{% endblock %}
+  <div class="footer pure-u-1">Copyright &copy; 2014 &nbsp;  汕头市残联康复科</div>
+</body>
+</html>

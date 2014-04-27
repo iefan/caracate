@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="splash3 pure-u-1 l-centered">
+  {% block orderselect %}{% endblock %}
+</div>
+
+<div class="pure-g-r ">
+  <div class="pure-u-1 selecttable">
+    <h2 align="center">{% block tabletitle %}{% endblock %}<span id="tablenum">&nbsp;&nbsp;[共&nbsp;{{allPostCounts}}&nbsp;个]</span></h2>
+    {% block ordertable %}{% endblock %}
+    
+    <div class="pure-u-1-2 pagination1 ">
+     <ul class="pure-paginator">
+       <!-- 如果当前是第一页或者当前没有记录，就不显示【上一页】链接 --> 
+       {% if curPage|add:1 > 2%}
+       <li><a class="pure-button" href="?curPage={{ curPage }}&allPostCounts={{ allPostCounts }}&pageType=pageUp">上一页</a></li>
+       {% else %}
+       <li><a class="pure-button pure-button-disabled" href="#">上一页</a></li>
+       {%endif%}
+        <li><a class="pure-button pure-button-active" href="?curPage={{ curPage }}&allPostCounts={{ allPostCounts }}">-&nbsp;{{ curPage }}&nbsp;-</a></li>
+        
+       <!-- 如果当前是最后一页，就不显示【下一页】链接 -->     
+       {% ifnotequal curPage allPage %}
+       <li><a class="pure-button" href="?curPage={{ curPage }}&allPostCounts={{ allPostCounts }}&pageType=pageDown">下一页</a></li>
+       {% else %}
+       <li><a class="pure-button pure-button-disabled" href="#">下一页</a></li>
+       {% endifnotequal %}
+     </ul>
+    </div>
+    <div class="pure-u-1-2 pagination2 ">
+    <form action="." method="get" class="pure-form" style="display:inline">
+      <fieldset>
+        {% ifnotequal allPage 0 %}
+        <span id="allpages">|共 <a href="?curPage={{ allPage }}&allPostCounts={{ allPostCounts }}">{{ allPage }}</a> 页|</span>
+        {% else %}
+        <span id="allpages">|共 0 页|</span>
+        {% endifnotequal %}
+        <span>到第</span>
+        <input name="curPage" type="text" size="2">
+        <input name="allPostCounts" type="hidden" size="2" value={{allPostCounts}}>
+        <input name="pageType" type="hidden" size="2" value="">
+        <span>页</span>
+        <input type="submit" value="跳转">
+      </fieldset>
+    </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

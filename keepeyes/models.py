@@ -1,7 +1,7 @@
 #coding=utf8
 from django.db import models
-import resources as jzr
-from datetime import date
+import keepeyes.resources as jzr
+# from datetime import date
 
 # Create your models here.
 class OperationsModel(models.Model):
@@ -11,7 +11,7 @@ class OperationsModel(models.Model):
     ppid            = models.CharField(unique=True, max_length=30, verbose_name="身份证号")
     operationtime   = models.DateField(verbose_name="手术时间", blank=True, null=True, )
     hospital        = models.CharField(choices=jzr.HOSPITAL_CHOICES, max_length=30, verbose_name="医院名称", default="国际眼科中心")
-    whicheye        = models.CharField(choices=jzr.EYE_CHOICE, max_length=10, verbose_name="术眼", default="左眼")
+    whicheye        = models.CharField(choices=jzr.EYE_CHOICES, max_length=10, verbose_name="术眼", default="左眼")
     address         = models.CharField(max_length=100, verbose_name="住址", blank=True, null=True, )
     phone           = models.CharField(max_length=20, verbose_name="固定电话",blank=True, null=True,)
     phone2          = models.CharField(max_length=20, verbose_name="手机",blank=True, null=True,)

@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     # 'django.contrib.staticfiles',
 
     'jzuser',
+    'keepeyes',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -94,6 +95,7 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static').replace('\\','/')
 STATIC_URL = '/static/'
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR,  'templates'),
+    os.path.join(BASE_DIR,  'keepeyes/templates'),
 )
 # STATICFILES_DIRS = (
 #     os.path.join(BASE_DIR, "static"),

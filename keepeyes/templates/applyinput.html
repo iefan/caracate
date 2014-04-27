@@ -1,0 +1,25 @@
+{% extends "inputbase.html" %}
+{% block title %}申请信息录入{% endblock %}
+
+{% block dispinfo %}
+    <address align="center">
+    {% for item in nomodifyinfo %}
+    {{ item }}；
+    {% endfor %}
+    </address>
+{% endblock %}
+
+{% block submitbtn %}
+<button type="submit" class="pure-button pure-button-primary" align="center">申请救助</button>
+{% endblock %}
+
+{% block jscal2 %}
+<script>
+    Calendar.setup({
+    trigger    : "id_commitdate",
+    inputField : "id_commitdate",
+    min: {{ jscal_min }},
+    max: {{ jscal_max }}
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "inputbase.html" %}
+{% block title %}申批信息修改{% endblock %}
+
+{% block dispinfo %}
+    <address align="center">
+        {% for item in nomodifyinfo %}
+        {{ item }}；
+        {% endfor %}
+    </address>
+{% endblock %}
+
+{% block submitbtn %}
+<button type="submit" class="pure-button pure-button-primary" align="center">修改</button>
+{% endblock %}
+
+{% block jscal2 %}
+<script>
+    Calendar.setup({
+    trigger    : "id_notifystart",
+    inputField : "id_notifystart",
+    min: {{ jscal_min }},
+    max: {{ jscal_max }}
+    });
+    Calendar.setup({
+    trigger    : "id_notifyend",
+    inputField : "id_notifyend",
+    min: {{ jscal_min }},
+    max: {{ jscal_max }}
+    });
+    Calendar.setup({
+    trigger    : "id_approvaldate",
+    inputField : "id_approvaldate",
+    min: {{ jscal_min }},
+    max: {{ jscal_max }}
+    });
+</script>
+{% endblock %}

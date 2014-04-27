@@ -1,0 +1,25 @@
+{% extends "inputbase.html" %}
+{% block title %}确认出院{% endblock %}
+
+{% block dispinfo %}
+    <address align="center">
+        {% for item in nomodifyinfo %}
+        {{ item }}；
+        {% endfor %}
+    </address>
+{% endblock %}
+
+{% block submitbtn %}
+<button type="submit" class="pure-button pure-button-primary" align="center">确认出院</button>
+{% endblock %}
+
+{% block jscal2 %}
+<script>
+    Calendar.setup({
+    trigger    : "id_outdate",
+    inputField : "id_outdate",
+    min: {{ jscal_min }},
+    max: {{ jscal_max }}
+    });
+</script>
+{% endblock %}

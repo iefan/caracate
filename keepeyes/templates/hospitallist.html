@@ -1,0 +1,56 @@
+{% extends "selectbase2.html" %}
+{% block title %}已申请人员列表{% endblock %}
+{% block admincssjs %}{% endblock %}
+
+{% block orderselect %}
+<form method="POST" action="/hospitallist/" class="pure-form">
+  <fieldset align="center" class="mselect">
+    {{ form }}
+    <button type="submit" class="pure-button pure-button-success">查询</button>
+  </fieldset>
+</form>
+{% endblock %}
+
+{% block tabletitle %}已申请人员列表{% endblock %}
+{% block ordertable %}
+<table align="center" class="pure-table pure-table-bordered">
+  <thead>
+    <tr>
+      <th>序号</th>
+      {% for item in curppname %}
+      <th>{{ item }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  {% for ipp, curid, curindate in curpp %}
+  <tr>
+    <td>{{ forloop.counter|add:startPos}}</td>
+    {% for item in ipp %}
+    {% if not item %}
+    <td>&nbsp;</td>
+    {% else %}
+    <td>{{ item }}</td>
+    {% endif %}
+    {% endfor %}
+
+    {% if not curid %}
+    <td>&nbsp;</td>
+    {% else %}{% if curid == "--" %}
+    <td>已入院</td>
+    {% else %}{% if curid == "over" %}
+    <td>已出院</td>
+    {% else %}
+    <td><a class="pure-button " href="/inhospital/{{ curid }}/">确认入院</a></td>
+    {% endif %}{% endif %}{% endif %}
+
+    {% if curindate == "" %}
+    <td>&nbsp;</td>
+    {% else %}
+    <td>{{curindate}}</td>
+    {% endif %}
+
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}

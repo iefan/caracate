@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block othercssjs %}
+<link rel="stylesheet" type="text/css" href="/static/JSCal2/css/jscal2.css" />
+<link rel="stylesheet" type="text/css" href="/static/JSCal2/css/border-radius.css" />
+<link rel="stylesheet" type="text/css" href="/static/JSCal2/css/steel/steel.css" />
+<script type="text/javascript" src="/static/JSCal2/js/jscal2.js"></script>
+<script type="text/javascript" src="/static/JSCal2/js/lang/cn.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="splash3 pure-u-1 l-centered">
+  <h2 align="center">{% block titleinfo %}{% endblock %}</h2>
+  {% include 'outxls_dispnum.html' %}
+</div>
+
+<div class="splash2 pure-u-1">
+  <div class="pure-g-r content-ribbon">
+    <form class="pure-form" action="." method="post">
+      <div class='pure-u-1' align='center'>
+        {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+        {% endfor %}
+        <table align="center" class="pure-table  pure-table-horizontal gameordertable">
+          {% for field in form.visible_fields %}
+            {% if forloop.counter0|divisibleby:2 %}
+          <tr>
+            <td align="right" class="tdlabel">{{ field.label }}</td>
+            <td class="fieldWrapper">{{ field.errors }}{{ field }}</td>
+            {% else %}
+            <td align="right" class="tdlabel">{{ field.label }}</td>
+            <td class="fieldWrapper" >{{ field.errors }}{{ field }}</td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+          {% if not form.visible_fields|length|divisibleby:2 %}
+          <td class="tdlabel">&nbsp;</td>
+          <td class="fieldWrapper ">&nbsp;</td>
+          </tr>
+          {% endif %}
+      </table>
+    </div>
+    <div class='pure-u-1' style="margin-top:20px;margin-bottom:20px;text-align:center;">
+      {% block submitbtn %}{% endblock %}
+    </div>
+  </form>
+  {% block jsajax %}{% endblock %}
+</div>
+</div>
+{% endblock %}
+

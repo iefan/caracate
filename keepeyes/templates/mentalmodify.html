@@ -1,0 +1,31 @@
+{% extends "inputbase.html" %}
+{% block title %}精神病人信息修改{% endblock %}
+
+{% block dispinfo %}
+<address align="center">
+    {% for item in nomodifyinfo %}
+    {{ item }}；
+    {% endfor %}
+</address>
+{% endblock %}
+
+{% block submitbtn %}
+<button type="submit" class="pure-button pure-button-primary" align="center">修改</button>
+{% endblock %}
+
+{% block jscal2 %}
+<script>
+    Calendar.setup({
+    trigger    : "id_certtime",
+    inputField : "id_certtime",
+    min: {{ jscal_min }},
+    max: {{ jscal_max }}
+    });
+    Calendar.setup({
+    trigger    : "id_regtime",
+    inputField : "id_regtime",
+    min: {{ jscal_min }},
+    max: {{ jscal_max }}
+    });
+</script>
+{% endblock %}
