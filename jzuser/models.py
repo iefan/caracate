@@ -1,5 +1,6 @@
 #coding:utf8
 from django.db import models
+import keepeyes.resources as jzr
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin
 )
@@ -52,13 +53,8 @@ class MyUserManager(BaseUserManager):
 class MyUser(AbstractBaseUser, PermissionsMixin):
     unitsn = models.CharField(verbose_name='单位编码', max_length=30, unique=True, db_index=True)
     # email = models.EmailField(verbose_name='电子邮箱', max_length=255, unique=True,)
-    unitname = models.CharField(max_length=100, verbose_name="单位名称")
-    UNITGROUP_CHOICES = (
-        ('0', u'市残联'),
-        ('1', u'区残联'),
-        ('2', u'医院'),
-    )
-    unitgroup = models.CharField(max_length=30, choices=UNITGROUP_CHOICES, verbose_name="单位类别")
+    unitname = models.CharField(choices=jzr.UNITNAMES_CHOICES, max_length=100, verbose_name="单位名称", default="国际眼科中心")
+    unitgroup = models.CharField(max_length=30, choices=jzr.UNITGROUP_CHOICES, verbose_name="单位类别", default="医院")
     operatorname = models.CharField(max_length=30, verbose_name="操作人员")
     # unitname = models.DateField()
     is_active = models.BooleanField(default=True)

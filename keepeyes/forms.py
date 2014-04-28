@@ -1,7 +1,7 @@
 #coding=utf8
 import keepeyes.resources as jzr
 from django import forms
-from keepeyes.models import OperationsModel
+from keepeyes.models import OperationsModel, NotfitOperationsModel
 from django.contrib.auth import authenticate
 from jzuser.models import MyUser
 
@@ -36,7 +36,7 @@ class CcInputForm(forms.ModelForm):
     
     class Meta:
         model = OperationsModel
-        fields = ('name','sex','county','ppid','operationtime','hospital','whicheye',\
+        fields = ('name','sex','county','ppid','operationtime','whicheye',\
             'address','phone','phone2','moneytotal','hospitalnumber',\
             'softcrystal','operatorname','hospitalleader',)
     def clean(self):
@@ -57,7 +57,7 @@ class CcModifyForm(forms.ModelForm):
     
     class Meta:
         model = OperationsModel
-        fields = ('sex','county','operationtime','hospital','whicheye',\
+        fields = ('sex','county','operationtime','whicheye',\
             'address','phone','phone2','moneytotal','hospitalnumber',\
             'softcrystal','operatorname','hospitalleader',)
         # exclude=('name','ppid',)
@@ -71,10 +71,40 @@ class CcModifyForm(forms.ModelForm):
 
     def clean_phone(self):
         phone  = self.cleaned_data['phone']
+        phone2  = self.cleaned_data['phone2']
+        if phone2 == "":
+            if not phone.isdigit() or len(phone)<11 or len(phone) > 12:
+                raise forms.ValidationError("请输入11或12位电话号码")
+        return phone
+
+
+class NotFitCcInputForm(forms.ModelForm):
+
+    class Meta:
+        model = NotfitOperationsModel
+        fields = ('name','sex','county','age',\
+            'address','phone','moneytotal','hospitalnumber',\
+            'hospitalID','operatorname','hospitalleader',)
+    def clean(self):
+        return self.cleaned_data
+
+class NotFitCcModifyForm(forms.ModelForm):
+    
+    class Meta:
+        model = NotfitOperationsModel
+        fields = ('county','age',\
+            'address','phone','moneytotal','hospitalnumber',\
+            'hospitalID','operatorname','hospitalleader',)
+        # exclude=('name','ppid',)
+
+    def clean(self):
+        return self.cleaned_data
+
+    def clean_phone(self):
+        phone  = self.cleaned_data['phone']
         if not phone.isdigit() or len(phone)<11 or len(phone) > 12:
             raise forms.ValidationError("请输入11或12位电话号码")
         return phone
-
 
 class SelectCcForm(forms.ModelForm):
     '''白内障手术查询条件表单'''

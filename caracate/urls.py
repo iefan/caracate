@@ -24,5 +24,9 @@ urlpatterns = patterns('',
     url(r'^cc_input/$', 'keepeyes.views.cc_input'),
     url(r'^cc_modify/(\d+)/$', 'keepeyes.views.cc_modify'),
 
+    url(r'^notcc_select/$', 'keepeyes.views.notcc_select'),
+    url(r'^notcc_input/$', 'keepeyes.views.notcc_input'),
+    url(r'^notcc_modify/(\d+)/$', 'keepeyes.views.notcc_modify'),
+
 )
 urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_ROOT )
