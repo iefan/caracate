@@ -3,7 +3,7 @@
 {% block admincssjs %}{% endblock %}
 
 {% block orderselect %}
-<form method="POST" action="/applylist/" class="pure-form">
+<form method="POST" action="/cc_select/" class="pure-form">
   <fieldset align="center" class="mselect">
     {{ form }}
     <button type="submit" class="pure-button pure-button-success">查询</button>
@@ -11,7 +11,7 @@
 </form>
 {% endblock %}
 
-{% block tabletitle %}待申请精神残疾人信息列表{% endblock %}
+{% block tabletitle %}白内障手术人员信息列表{% endblock %}
 {% block ordertable %}
 <table align="center" class="pure-table pure-table-bordered">
   <thead>
@@ -22,7 +22,7 @@
       {% endfor %}
     </tr>
   </thead>
-  {% for ipp, curid, curppid, curproval in curpp %}
+  {% for ipp, curid in curpp %}
   <tr>
     <td>{{ forloop.counter|add:startPos}}</td>
     {% for item in ipp %}
@@ -36,21 +36,7 @@
     {% if not curid %}
     <td>&nbsp;</td>
     {% else %}
-    <td><a class="pure-button " href="/applymodify/{{ curid }}/">修改</a></td>
-    {% endif %}
-
-    {% if curppid == "" %}
-    <td>&nbsp;</td>    
-    {% else %}{% if curppid == "--" %}
-    <td>已申请</td>
-    {% else %}
-    <td><a class="pure-button " href="/applyinput/{{ curppid }}/">申请</a></td>
-    {% endif %}{% endif %}
-
-    {% if not curproval %}
-    <td>&nbsp;</td>
-    {% else %}
-    <td>{{ curproval }}</td>
+    <td><a class="pure-button " href="/cc_modify/{{ curid }}/">修改</a></td>
     {% endif %}
     
   </tr>

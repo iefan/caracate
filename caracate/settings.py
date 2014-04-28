@@ -54,6 +54,7 @@ MIDDLEWARE_CLASSES = (
 
 AUTH_USER_MODEL = "jzuser.MyUser"
 DATE_FORMAT = 'Y-m-d'
+LOGIN_REDIRECT_URL = "/cc_select/"
 
 ROOT_URLCONF = 'caracate.urls'
 

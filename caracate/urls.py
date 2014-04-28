@@ -17,6 +17,12 @@ urlpatterns = patterns('',
 
     url(r'^logout/$', logout,{'template_name':'logout.html'}),
     url(r'^login/$', myuser_login,  {'template_name': 'login.html'}),
+    url(r'^changepassword/$', 'keepeyes.views.changepassword'),
+
+    url(r'^$', 'keepeyes.views.index'),
+    url(r'^cc_select/$', 'keepeyes.views.cc_select'),
+    url(r'^cc_input/$', 'keepeyes.views.cc_input'),
+    url(r'^cc_modify/(\d+)/$', 'keepeyes.views.cc_modify'),
 
 )
 urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_ROOT )
