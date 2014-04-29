@@ -22,7 +22,7 @@ def setOutCell(outSheet, col, row, value):
             newCell.xf_idx = previousCell.xf_idx
 
 # !!!===!!! MUST NEED ADD 'u' BEFORE IN UNICODE ! ===!!!
-UNITGROUP_CHOICES = (
+UNITGROUP_CHOICES = (\
         ('0', '市残联'),
         ('1', '区残联'),
         ('2', '医院'),

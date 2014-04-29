@@ -37,8 +37,8 @@ class CcInputForm(forms.ModelForm):
     class Meta:
         model = OperationsModel
         fields = ('name','sex','county','ppid','operationtime','whicheye',\
-            'address','phone','phone2','moneytotal','hospitalnumber',\
-            'softcrystal','operatorname','hospitalleader',)
+            'address','phone','moneytotal','hospitalnumber',\
+            'softcrystal','hospitalleader','operatorname',)
     def clean(self):
         return self.cleaned_data
 
@@ -58,8 +58,8 @@ class CcModifyForm(forms.ModelForm):
     class Meta:
         model = OperationsModel
         fields = ('sex','county','operationtime','whicheye',\
-            'address','phone','phone2','moneytotal','hospitalnumber',\
-            'softcrystal','operatorname','hospitalleader',)
+            'address','phone','moneytotal','hospitalnumber',\
+            'softcrystal','hospitalleader','operatorname',)
         # exclude=('name','ppid',)
 
     def clean(self):
@@ -71,10 +71,8 @@ class CcModifyForm(forms.ModelForm):
 
     def clean_phone(self):
         phone  = self.cleaned_data['phone']
-        phone2  = self.cleaned_data['phone2']
-        if phone2 == "":
-            if not phone.isdigit() or len(phone)<11 or len(phone) > 12:
-                raise forms.ValidationError("请输入11或12位电话号码")
+        if not phone.isdigit() or len(phone)<11 or len(phone) > 12:
+            raise forms.ValidationError("请输入11或12位电话号码")
         return phone
 
 
@@ -82,19 +80,23 @@ class NotFitCcInputForm(forms.ModelForm):
 
     class Meta:
         model = NotfitOperationsModel
-        fields = ('name','sex','county','age',\
-            'address','phone','moneytotal','hospitalnumber',\
-            'hospitalID','operatorname','hospitalleader',)
+        fields = ('name','sex','county','age','hospital','address','phone',\
+            'moneytotal','moneyfund','hospitalleader','reason','hospitalID','operatorname',)
+
     def clean(self):
         return self.cleaned_data
 
+    def clean_phone(self):
+        phone  = self.cleaned_data['phone']
+        if not phone.isdigit() or len(phone)<11 or len(phone) > 12:
+            raise forms.ValidationError("请输入11或12位电话号码")
+        return phone
+
 class NotFitCcModifyForm(forms.ModelForm):
-    
     class Meta:
         model = NotfitOperationsModel
-        fields = ('county','age',\
-            'address','phone','moneytotal','hospitalnumber',\
-            'hospitalID','operatorname','hospitalleader',)
+        fields = ('county','age','hospital','address','phone',\
+            'moneytotal','moneyfund','hospitalleader','reason','hospitalID','operatorname',)
         # exclude=('name','ppid',)
 
     def clean(self):
@@ -105,6 +107,19 @@ class NotFitCcModifyForm(forms.ModelForm):
         if not phone.isdigit() or len(phone)<11 or len(phone) > 12:
             raise forms.ValidationError("请输入11或12位电话号码")
         return phone
+
+
+class NotFitSelectCcForm(forms.ModelForm):
+    '''不适合白内障手术查询条件表单'''
+    lstcounty = list(jzr.COUNTY_CHOICES)
+    lstcounty.insert(0, ("", "--"))
+    county = forms.ChoiceField(choices = tuple(lstcounty), label="区县名称",)
+    class Meta:
+        model = NotfitOperationsModel
+        fields = ('name', 'county',)
+
+    def clean(self):
+        return self.cleaned_data
 
 class SelectCcForm(forms.ModelForm):
     '''白内障手术查询条件表单'''
