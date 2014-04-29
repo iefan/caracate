@@ -132,3 +132,29 @@ class SelectCcForm(forms.ModelForm):
 
     def clean(self):
         return self.cleaned_data
+
+class Approval_Cc_SelectForm(forms.ModelForm):
+    '''审核白内障手术查询条件表单'''
+    lsthospital = list(jzr.HOSPITAL_CHOICES)
+    lsthospital.insert(0, ("", "--"))
+    hospital = forms.ChoiceField(choices = tuple(lsthospital), label="医院名称",)
+    class Meta:
+        model = OperationsModel
+        fields = ('name', 'ppid', 'hospital',)
+
+    def clean(self):
+        return self.cleaned_data
+
+class Approval_Cc_Form(forms.ModelForm):
+    """申批表"""
+    # caracate = forms.ModelChoiceField(queryset=OperationsModel.objects.all(), widget=forms.HiddenInput())
+    approvaldate   = forms.CharField(error_messages={'required':u'日期不能为空'}, label='办证时间', \
+        widget= forms.TextInput())
+    
+    class Meta:
+        model = OperationsModel
+        fields = ('moneyfund', 'isapproval', 'approvaldate', 'approvalman',)
+       
+    def clean(self):
+        return self.cleaned_data
+
