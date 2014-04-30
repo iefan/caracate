@@ -33,18 +33,29 @@ class ChangePasswordForm(forms.Form):
 class CcInputForm(forms.ModelForm):
     operationtime   = forms.CharField(error_messages={'required':u'日期不能为空'}, label='手术时间', \
         widget= forms.TextInput())
+
+    lstcounty = list(jzr.COUNTY_CHOICES)
+    lstcounty.insert(0, ("", "--"))
+    county = forms.ChoiceField(choices = tuple(lstcounty), label="区县名称",)
     
     class Meta:
         model = OperationsModel
         fields = ('name','sex','county','ppid','operationtime','whicheye',\
             'address','phone','moneytotal','hospitalnumber',\
             'softcrystal', 'operatorname',)
+
     def clean(self):
         return self.cleaned_data
 
+    def clean_county(self):
+        county = self.cleaned_data['county']
+        if county == 0:
+            raise forms.ValidationError("请选择区县名称")
+        return county
+
     def clean_moneytotal(self):
         moneytotal = self.cleaned_data['moneytotal']
-        if moneytotal is None:
+        if moneytotal is None or moneytotal < 0.1:
             raise forms.ValidationError("请录入手术费用")
         return moneytotal
 
@@ -68,6 +79,13 @@ class CcModifyForm(forms.ModelForm):
             'softcrystal', 'operatorname',)
         # exclude=('name','ppid',)
 
+    def clean_moneytotal(self):
+        moneytotal = self.cleaned_data['moneytotal']
+        if moneytotal is None or moneytotal < 0.1:
+            raise forms.ValidationError("请录入手术费用")
+        return moneytotal
+
+
     def clean(self):
         return self.cleaned_data
 
@@ -83,14 +101,23 @@ class CcModifyForm(forms.ModelForm):
 
 
 class NotFitCcInputForm(forms.ModelForm):
+    lstcounty = list(jzr.COUNTY_CHOICES)
+    lstcounty.insert(0, ("", "--"))
+    county = forms.ChoiceField(choices = tuple(lstcounty), label="区县名称",)
 
     class Meta:
         model = NotfitOperationsModel
-        fields = ('name','sex','county','age','hospital','address','phone',\
+        fields = ('name','sex','county','age','address','phone','checkdate',\
             'moneytotal',  'reason','hospitalID','operatorname',)
 
     def clean(self):
         return self.cleaned_data
+
+    def clean_age(self):
+        age = self.cleaned_data['age']
+        if age:
+            if not age.isdigit():
+                raise forms.ValidationError("年龄必须输入数字")
 
     def clean_moneytotal(self):
         moneytotal = self.cleaned_data['moneytotal']
@@ -107,9 +134,15 @@ class NotFitCcInputForm(forms.ModelForm):
 class NotFitCcModifyForm(forms.ModelForm):
     class Meta:
         model = NotfitOperationsModel
-        fields = ('county','age','hospital','address','phone',\
+        fields = ('county','age','address','phone','checkdate',\
             'moneytotal', 'reason','hospitalID','operatorname',)
         # exclude=('name','ppid',)
+
+    def clean_age(self):
+        age = self.cleaned_data['age']
+        if age:
+            if not age.isdigit():
+                raise forms.ValidationError("年龄必须输入数字")
 
     def clean_moneytotal(self):
         moneytotal = self.cleaned_data['moneytotal']

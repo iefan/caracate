@@ -117,7 +117,7 @@ def cc_modify(request, curid="0"):
     else:
         return HttpResponseRedirect('/cc_select/')
 
-    nomodifyinfo = [u"姓名：%s"  % curpp.name, u"身份证号：%s" % curpp.ppid]
+    nomodifyinfo = ["姓名：%s"  % curpp.name, "身份证号：%s" % curpp.ppid]
 
     today   = datetime.date.today()
     jscal_min = int(today.isoformat().replace('-', ''))
@@ -228,7 +228,7 @@ def notcc_modify(request, curid="0"):
     except NotfitOperationsModel.DoesNotExist:
         return HttpResponseRedirect('/notcc_select/')
 
-    nomodifyinfo = [u"姓名：%s"  % curpp.name, ]
+    nomodifyinfo = ["姓名：%s"  % curpp.name, ]
 
     today   = datetime.date.today()
     jscal_min = int(today.isoformat().replace('-', ''))
@@ -327,7 +327,7 @@ def cc_approvalinput(request, curid=""):
     except OperationsModel.DoesNotExist:
         return HttpResponseRedirect('/cc_approvallist/')
 
-    nomodifyinfo = [u"姓名：%s"  % curpp.name, u"身份证号：%s" % curpp.ppid]
+    nomodifyinfo = ["姓名：%s"  % curpp.name, "手术费用：%s" % curpp.moneytotal, "医院名称：%s" % curpp.hospital]
 
     today   = datetime.date.today()
     jscal_min = int(today.isoformat().replace('-', ''))
@@ -435,16 +435,17 @@ def notfit_cc_approvalinput(request, curid=""):
 
     # 如果为空，则跳转到所有申请表中
     if curid == "":
-        return HttpResponseRedirect('/cc_approvallist/')
+        return HttpResponseRedirect('/notfit_cc_approvallist/')
 
+    print(1)
     # 如果已经申批，则跳转
     try:
-        curpp = OperationsModel.objects.get(id=curid)
-        # curpp = OperationsModel.objects.get(approvaldate__isnull=True,  id=curid)
-    except OperationsModel.DoesNotExist:
-        return HttpResponseRedirect('/cc_approvallist/')
+        curpp = NotfitOperationsModel.objects.get(id=curid)
+        # curpp = NotfitOperationsModel.objects.get(approvaldate__isnull=True,  id=curid)
+    except NotfitOperationsModel.DoesNotExist:
+        return HttpResponseRedirect('/notfit_cc_approvallist/')
 
-    nomodifyinfo = [u"姓名：%s"  % curpp.name, u"身份证号：%s" % curpp.ppid]
+    nomodifyinfo = ["姓名：%s"  % curpp.name, "检查费用：%s" % curpp.moneytotal, "医院名称:%s" % curpp.hospital]
 
     today   = datetime.date.today()
     jscal_min = int(today.isoformat().replace('-', ''))
@@ -460,8 +461,8 @@ def notfit_cc_approvalinput(request, curid=""):
         form = Approval_Cc_Form(request.POST, instance=curpp)
         if form.is_valid():
             form.save()
-            return HttpResponseRedirect('/cc_approvallist/') # Redirect
-    return render_to_response('cc_approvalinput.html', {"form":form, "nomodifyinfo":nomodifyinfo,"jscal_min":jscal_min, "jscal_max":jscal_max, "btnname":btnname}, context_instance=RequestContext(request))
+            return HttpResponseRedirect('/notfit_cc_approvallist/') # Redirect
+    return render_to_response('not_cc_approvalinput.html', {"form":form, "nomodifyinfo":nomodifyinfo,"jscal_min":jscal_min, "jscal_max":jscal_max, "btnname":btnname}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
 def notfit_cc_onekeyapproval(request):
