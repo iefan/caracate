@@ -38,7 +38,7 @@ class CcInputForm(forms.ModelForm):
         model = OperationsModel
         fields = ('name','sex','county','ppid','operationtime','whicheye',\
             'address','phone','moneytotal','hospitalnumber',\
-            'softcrystal','hospitalleader','operatorname',)
+            'softcrystal', 'operatorname',)
     def clean(self):
         return self.cleaned_data
 
@@ -65,7 +65,7 @@ class CcModifyForm(forms.ModelForm):
         model = OperationsModel
         fields = ('sex','county','operationtime','whicheye',\
             'address','phone','moneytotal','hospitalnumber',\
-            'softcrystal','hospitalleader','operatorname',)
+            'softcrystal', 'operatorname',)
         # exclude=('name','ppid',)
 
     def clean(self):
@@ -87,7 +87,7 @@ class NotFitCcInputForm(forms.ModelForm):
     class Meta:
         model = NotfitOperationsModel
         fields = ('name','sex','county','age','hospital','address','phone',\
-            'moneytotal', 'hospitalleader','reason','hospitalID','operatorname',)
+            'moneytotal',  'reason','hospitalID','operatorname',)
 
     def clean(self):
         return self.cleaned_data
@@ -108,8 +108,14 @@ class NotFitCcModifyForm(forms.ModelForm):
     class Meta:
         model = NotfitOperationsModel
         fields = ('county','age','hospital','address','phone',\
-            'moneytotal','moneyfund','hospitalleader','reason','hospitalID','operatorname',)
+            'moneytotal', 'reason','hospitalID','operatorname',)
         # exclude=('name','ppid',)
+
+    def clean_moneytotal(self):
+        moneytotal = self.cleaned_data['moneytotal']
+        if moneytotal is None:
+            raise forms.ValidationError("请录入手术费用")
+        return moneytotal
 
     def clean(self):
         return self.cleaned_data
@@ -168,7 +174,17 @@ class Approval_Cc_Form(forms.ModelForm):
     
     class Meta:
         model = OperationsModel
-        fields = ('moneyfund', 'isapproval', 'approvaldate', 'approvalman',)
+        fields = ('isapproval', 'moneyfund', 'approvaldate', 'approvalman',)
+
+    def clean_moneyfund(self):
+        isapproval = self.cleaned_data['isapproval']
+        moneyfund  = self.cleaned_data['moneyfund']
+        if isapproval != "同意":
+            moneyfund = None
+        else:
+            if moneyfund is None:
+                raise forms.ValidationError("请输入补助资金")
+        return moneyfund
        
     def clean(self):
         return self.cleaned_data

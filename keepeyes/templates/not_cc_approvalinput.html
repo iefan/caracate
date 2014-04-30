@@ -1,5 +1,5 @@
 {% extends "inputbase.html" %}
-{% block title %}确认结算{% endblock %}
+{% block title %}不符合手术人员申核{% endblock %}
 
 {% block dispinfo %}
     <address align="center">
@@ -10,14 +10,14 @@
 {% endblock %}
 
 {% block submitbtn %}
-<button type="submit" class="pure-button pure-button-primary" align="center">出院结算</button>
+<button type="submit" class="pure-button pure-button-primary" align="center">{{ btnname }}</button>
 {% endblock %}
 
 {% block jscal2 %}
 <script>
     Calendar.setup({
-    trigger    : "id_dateclose",
-    inputField : "id_dateclose",
+    trigger    : "id_approvaldate",
+    inputField : "id_approvaldate",
     min: {{ jscal_min }},
     max: {{ jscal_max }}
     });

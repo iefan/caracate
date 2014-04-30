@@ -1,9 +1,9 @@
-{% extends "selectbase2.html" %}
-{% block title %}已申请人员列表{% endblock %}
+{% extends "selectbase.html" %}
+{% block title %}不符合手术人员列表{% endblock %}
 {% block admincssjs %}{% endblock %}
 
 {% block orderselect %}
-<form method="POST" action="/hospitallist/" class="pure-form">
+<form method="POST" action="/cc_approvallist/" class="pure-form">
   <fieldset align="center" class="mselect">
     {{ form }}
     <button type="submit" class="pure-button pure-button-success">查询</button>
@@ -11,7 +11,7 @@
 </form>
 {% endblock %}
 
-{% block tabletitle %}已申请人员列表{% endblock %}
+{% block tabletitle %}不符合手术人员列表{% endblock %}
 {% block ordertable %}
 <table align="center" class="pure-table pure-table-bordered">
   <thead>
@@ -22,7 +22,7 @@
       {% endfor %}
     </tr>
   </thead>
-  {% for ipp, curid, curindate in curpp %}
+  {% for ipp, curid, tmpflag in curpp %}
   <tr>
     <td>{{ forloop.counter|add:startPos}}</td>
     {% for item in ipp %}
@@ -33,24 +33,17 @@
     {% endif %}
     {% endfor %}
 
-    {% if not curid %}
-    <td>&nbsp;</td>
-    {% else %}{% if curid == "--" %}
-    <td>已入院</td>
-    {% else %}{% if curid == "over" %}
-    <td>已出院</td>
+    {% if tmpflag == 0 %}    
+    <td><a class="pure-button " href="/cc_approvalinput/{{ curid }}/">修改</a></td>
     {% else %}
-    <td><a class="pure-button " href="/inhospital/{{ curid }}/">确认入院</a></td>
-    {% endif %}{% endif %}{% endif %}
-
-    {% if curindate == "" %}
-    <td>&nbsp;</td>
-    {% else %}
-    <td>{{curindate}}</td>
+    <td><a class="pure-button " href="/cc_approvalinput/{{ curid }}/">审核</a></td>
     {% endif %}
-
+    
   </tr>
   {% endfor %}
 </table>
+{% endblock %}
 
+{% block otherbutton %}
+<a class="pure-button pure-button-primary" style="margin-left: 30px;" href="/notfit_cc_onekeyapproval/">一键审核</a>
 {% endblock %}

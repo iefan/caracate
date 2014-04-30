@@ -8,7 +8,7 @@ from keepeyes.forms import SelectCcForm, CcInputForm, CcModifyForm, ChangePasswo
 from keepeyes.forms import NotFitSelectCcForm, NotFitCcInputForm, NotFitCcModifyForm
 from keepeyes.forms import Approval_Cc_SelectForm, Approval_Cc_Form
 import datetime
-from django.db.models import Q
+# from django.db.models import Q
 
 MYPAGES = 10
 
@@ -111,9 +111,10 @@ def cc_modify(request, curid="0"):
     if curid == "0":
         return HttpResponseRedirect('/cc_select/')
     
-    try:
-        curpp = OperationsModel.objects.get(id=curid, ~Q(isapproval="同意"))
-    except OperationsModel.DoesNotExist:
+    curpp = OperationsModel.objects.filter(id=curid).exclude(isapproval="同意")
+    if len(curpp) == 1:
+        curpp = curpp[0]
+    else:
         return HttpResponseRedirect('/cc_select/')
 
     nomodifyinfo = [u"姓名：%s"  % curpp.name, u"身份证号：%s" % curpp.ppid]
@@ -299,7 +300,7 @@ def cc_approvallist(request, curname="", curcounty="", curhospital=""):
     # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
     if len(cur_re) != 0:
         for ipp in cur_re:
-            if ipp.approvaldate:
+            if ipp.isapproval == "同意":
                 tmpflag = 0
             else:
                 tmpflag = 1
@@ -310,6 +311,123 @@ def cc_approvallist(request, curname="", curcounty="", curhospital=""):
 
 @login_required(login_url="/login/")
 def cc_approvalinput(request, curid=""):
+    '''批准视图'''
+    lstauth = [0,]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+
+    # 如果为空，则跳转到所有申请表中
+    if curid == "":
+        return HttpResponseRedirect('/cc_approvallist/')
+
+    # 如果已经申批，则跳转
+    try:
+        curpp = OperationsModel.objects.get(id=curid)
+        # curpp = OperationsModel.objects.get(approvaldate__isnull=True,  id=curid)
+    except OperationsModel.DoesNotExist:
+        return HttpResponseRedirect('/cc_approvallist/')
+
+    nomodifyinfo = [u"姓名：%s"  % curpp.name, u"身份证号：%s" % curpp.ppid]
+
+    today   = datetime.date.today()
+    jscal_min = int(today.isoformat().replace('-', ''))
+    jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
+
+    btnname = "修改"
+    curpp.approvalman = request.user.operatorname
+    if curpp.isapproval != "同意":
+        btnname = "审核"
+        curpp.approvaldate = today
+    form = Approval_Cc_Form(instance=curpp)
+    if request.method == "POST":
+        form = Approval_Cc_Form(request.POST, instance=curpp)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect('/cc_approvallist/') # Redirect
+    return render_to_response('cc_approvalinput.html', {"form":form, "nomodifyinfo":nomodifyinfo,"jscal_min":jscal_min, "jscal_max":jscal_max, "btnname":btnname}, context_instance=RequestContext(request))
+
+@login_required(login_url="/login/")
+def cc_onekeyapproval(request):
+    lstauth = [0,]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+
+    curname     = request.session['cc_name']
+    curcounty   = request.session['cc_county']
+    curhospital = request.session['cc_hospital']
+
+    today   = datetime.date.today()
+    OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty \
+        ).update(approvalman=request.user.operatorname, moneyfund=1400.00, isapproval="同意", approvaldate=today)
+
+    return cc_approvallist(request, curname, curcounty, curhospital)
+
+@login_required(login_url="/login/")
+def notfit_cc_approvallist(request, curname="", curcounty="", curhospital=""):
+    lstauth = [0,]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+
+    curppname = ["姓名", "性别", "区县", "年龄", "医院名称", "家庭住址", "联系电话", \
+        "手术费用", '基金补助', "不适合手术原因", "医院ID", "审核"]
+    curpp     = []
+
+    if request.method == 'POST':
+        curname = request.POST['name'].strip()
+        curcounty = request.POST['county']
+        curhospital = request.POST['hospital']
+    form = Approval_Cc_SelectForm(initial={'name':curname, 'county':curcounty, 'hospital':curhospital,}) #页面查询窗体
+
+    request.session['notfitcc_name'] = curname
+    request.session['notfitcc_county'] = curcounty
+    request.session['notfitcc_hospital'] = curhospital
+    #=====================new page=================
+    try:
+        curPage = int(request.GET.get('curPage', '1'))
+        allPostCounts = int(request.GET.get('allPostCounts',''))
+        pageType = str(request.GET.get('pageType', ''))
+    except ValueError:
+        curPage = 1
+        allPostCounts = ""
+        pageType = ''
+
+    if curPage < 1:
+        curPage = 1
+    #判断点击了【下一页】还是【上一页】
+    if pageType == 'pageDown':
+        curPage += 1
+    elif pageType == 'pageUp':
+        curPage -= 1
+
+    startPos = (curPage-1) * MYPAGES
+    endPos = startPos + MYPAGES
+    cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty)[startPos:endPos]
+    # posts = BlogPost.objects.all()[startPos:endPos]
+
+    if allPostCounts == "": #标记1
+        allPostCounts = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty).count()
+    if allPostCounts == 0:
+        curPage = 0
+        allPage = 0
+    # allPostCounts = BlogPost.objects.count()
+    allPage = int(allPostCounts / MYPAGES)
+    if (allPostCounts % MYPAGES) > 0:
+        allPage += 1
+
+    # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
+    if len(cur_re) != 0:
+        for ipp in cur_re:
+            if ipp.isapproval == "同意":
+                tmpflag = 0
+            else:
+                tmpflag = 1
+            curpp.append([[ipp.name,ipp.sex,ipp.county,ipp.age,ipp.hospital,ipp.address,\
+                ipp.phone,ipp.moneytotal,ipp.moneyfund,ipp.reason,ipp.hospitalID,], ipp.id, tmpflag])
+    
+    return render_to_response("not_cc_approvallist.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage},context_instance=RequestContext(request))  
+
+@login_required(login_url="/login/")
+def notfit_cc_approvalinput(request, curid=""):
     '''批准视图'''
     lstauth = [0,]
     if int(request.user.unitgroup) not in lstauth:
@@ -346,20 +464,26 @@ def cc_approvalinput(request, curid=""):
     return render_to_response('cc_approvalinput.html', {"form":form, "nomodifyinfo":nomodifyinfo,"jscal_min":jscal_min, "jscal_max":jscal_max, "btnname":btnname}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
-def cc_onekeyapproval(request):
+def notfit_cc_onekeyapproval(request):
     lstauth = [0,]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
 
-    curname     = request.session['cc_name']
-    curcounty   = request.session['cc_county']
-    curhospital = request.session['cc_hospital']
+    curname     = request.session['notfitcc_name']
+    curcounty   = request.session['notfitcc_county']
+    curhospital = request.session['notfitcc_hospital']
 
     today   = datetime.date.today()
-    OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty \
-        ).update(approvalman=request.user.operatorname, moneyfund=1400.00, isapproval="同意", approvaldate=today)
-
-    return cc_approvallist(request, curname, curcounty, curhospital)
+    cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty,)
+    if len(cur_re) != 0:
+        for ipp in cur_re:
+            if ipp.moneytotal >= 350:
+                ipp.moneyfund = 350
+            else:
+                ipp.moneyfund = ipp.moneytotal
+            ipp.save()
+    
+    return notfit_cc_approvallist(request, curname, curcounty, curhospital)
 
 @login_required(login_url="/login/")
 def changepassword(request):

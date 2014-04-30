@@ -32,6 +32,10 @@ urlpatterns = patterns('',
     url(r'^cc_approvalinput/(\d+)/$', 'keepeyes.views.cc_approvalinput'),
     url(r'^cc_onekeyapproval/$', 'keepeyes.views.cc_onekeyapproval'),
 
+    url(r'^notfit_cc_approvallist/$', 'keepeyes.views.notfit_cc_approvallist'),
+    url(r'^notfit_cc_approvalinput/(\d+)/$', 'keepeyes.views.notfit_cc_approvalinput'),
+    url(r'^notfit_cc_onekeyapproval/$', 'keepeyes.views.notfit_cc_onekeyapproval'),
+
     # url(r'^cc_modify/(\d+)/$', 'keepeyes.views.cc_modify'),
 
 )
