@@ -8,6 +8,7 @@ from keepeyes.forms import SelectCcForm, CcInputForm, CcModifyForm, ChangePasswo
 from keepeyes.forms import NotFitSelectCcForm, NotFitCcInputForm, NotFitCcModifyForm
 from keepeyes.forms import Approval_Cc_SelectForm, Approval_Cc_Form
 import datetime
+from django.db.models import Q
 
 MYPAGES = 10
 
@@ -71,8 +72,12 @@ def cc_select(request, curname="", curppid="", curcounty=""):
     # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
     if len(cur_re) != 0:
         for ipp in cur_re:
+            if ipp.isapproval == "同意":
+                tmpid = ""
+            else:
+                tmpid = ipp.id
             curpp.append([[ipp.name, ipp.sex, ipp.county, ipp.ppid, ipp.operationtime, ipp.whicheye, \
-                ipp.address, ipp.phone, ipp.moneytotal, ipp.moneyfund, ipp.softcrystal], ipp.id])
+                ipp.address, ipp.phone, ipp.moneytotal, ipp.moneyfund, ipp.softcrystal], tmpid])
     
     return render_to_response("cc_applylist.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage},context_instance=RequestContext(request))  
 
@@ -107,7 +112,7 @@ def cc_modify(request, curid="0"):
         return HttpResponseRedirect('/cc_select/')
     
     try:
-        curpp = OperationsModel.objects.get(id=curid)
+        curpp = OperationsModel.objects.get(id=curid, ~Q(isapproval="同意"))
     except OperationsModel.DoesNotExist:
         return HttpResponseRedirect('/cc_select/')
 
@@ -179,7 +184,11 @@ def notcc_select(request, curname="", curcounty=""):
     # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
     if len(cur_re) != 0:
         for ipp in cur_re:
-            curpp.append([[ipp.name, ipp.sex, ipp.county, ipp.age, ipp.address, ipp.phone, ipp.reason, ipp.moneytotal, ipp.moneyfund, ipp.hospitalID], ipp.id])
+            if ipp.approvaldate:
+                tmpid = ""
+            else:
+                tmpid = ipp.id
+            curpp.append([[ipp.name, ipp.sex, ipp.county, ipp.age, ipp.address, ipp.phone, ipp.reason, ipp.moneytotal, ipp.moneyfund, ipp.hospitalID], tmpid])
     
     return render_to_response("notcc_applylist.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage},context_instance=RequestContext(request))  
 
@@ -214,7 +223,7 @@ def notcc_modify(request, curid="0"):
         return HttpResponseRedirect('/notcc_select/')
     
     try:
-        curpp = NotfitOperationsModel.objects.get(id=curid)
+        curpp = NotfitOperationsModel.objects.get(id=curid, approvaldate__isnull=True)
     except NotfitOperationsModel.DoesNotExist:
         return HttpResponseRedirect('/notcc_select/')
 
@@ -236,7 +245,7 @@ def notcc_modify(request, curid="0"):
     return render_to_response('notcc_applymodify.html', {"form":form, "nomodifyinfo":nomodifyinfo, "jscal_min":jscal_min, "jscal_max":jscal_max}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
-def cc_approvallist(request, curname="", curppid="", curhospital=""):
+def cc_approvallist(request, curname="", curcounty="", curhospital=""):
     lstauth = [0,]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
@@ -247,10 +256,13 @@ def cc_approvallist(request, curname="", curppid="", curhospital=""):
 
     if request.method == 'POST':
         curname = request.POST['name'].strip()
-        curppid = request.POST['ppid'].strip()
+        curcounty = request.POST['county']
         curhospital = request.POST['hospital']
-    form = Approval_Cc_SelectForm(initial={'name':curname, 'ppid':curppid, 'hospital':curhospital,}) #页面查询窗体
+    form = Approval_Cc_SelectForm(initial={'name':curname, 'county':curcounty, 'hospital':curhospital,}) #页面查询窗体
 
+    request.session['cc_name'] = curname
+    request.session['cc_county'] = curcounty
+    request.session['cc_hospital'] = curhospital
     #=====================new page=================
     try:
         curPage = int(request.GET.get('curPage', '1'))
@@ -271,11 +283,11 @@ def cc_approvallist(request, curname="", curppid="", curhospital=""):
 
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
-    cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, ppid__icontains=curppid)[startPos:endPos]
+    cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty)[startPos:endPos]
     # posts = BlogPost.objects.all()[startPos:endPos]
 
     if allPostCounts == "": #标记1
-        allPostCounts = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, ppid__icontains=curppid).count()
+        allPostCounts = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty).count()
     if allPostCounts == 0:
         curPage = 0
         allPage = 0
@@ -288,11 +300,11 @@ def cc_approvallist(request, curname="", curppid="", curhospital=""):
     if len(cur_re) != 0:
         for ipp in cur_re:
             if ipp.approvaldate:
-                tmpid = ""
+                tmpflag = 0
             else:
-                tmpid = ipp.id
+                tmpflag = 1
             curpp.append([[ipp.name, ipp.sex, ipp.county, ipp.ppid, ipp.operationtime, ipp.whicheye, \
-                ipp.address, ipp.phone, ipp.moneytotal, ipp.moneyfund, ipp.softcrystal], tmpid])
+                ipp.address, ipp.phone, ipp.moneytotal, ipp.moneyfund, ipp.softcrystal], ipp.id, tmpflag])
     
     return render_to_response("cc_approvallist.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage},context_instance=RequestContext(request))  
 
@@ -309,26 +321,45 @@ def cc_approvalinput(request, curid=""):
 
     # 如果已经申批，则跳转
     try:
-        curpp = OperationsModel.objects.get(approvaldate__isnull=True,  id=curid)
+        curpp = OperationsModel.objects.get(id=curid)
+        # curpp = OperationsModel.objects.get(approvaldate__isnull=True,  id=curid)
     except OperationsModel.DoesNotExist:
         return HttpResponseRedirect('/cc_approvallist/')
 
     nomodifyinfo = [u"姓名：%s"  % curpp.name, u"身份证号：%s" % curpp.ppid]
 
     today   = datetime.date.today()
-
     jscal_min = int(today.isoformat().replace('-', ''))
     jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
 
+    btnname = "修改"
     curpp.approvalman = request.user.operatorname
+    if not curpp.approvaldate:
+        btnname = "审核"
+        curpp.approvaldate = today
     form = Approval_Cc_Form(instance=curpp)
     if request.method == "POST":
         form = Approval_Cc_Form(request.POST, instance=curpp)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect('/cc_approvallist/') # Redirect
-    return render_to_response('cc_approvalinput.html', {"form":form, "nomodifyinfo":nomodifyinfo,"jscal_min":jscal_min, "jscal_max":jscal_max}, context_instance=RequestContext(request))
+    return render_to_response('cc_approvalinput.html', {"form":form, "nomodifyinfo":nomodifyinfo,"jscal_min":jscal_min, "jscal_max":jscal_max, "btnname":btnname}, context_instance=RequestContext(request))
 
+@login_required(login_url="/login/")
+def cc_onekeyapproval(request):
+    lstauth = [0,]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+
+    curname     = request.session['cc_name']
+    curcounty   = request.session['cc_county']
+    curhospital = request.session['cc_hospital']
+
+    today   = datetime.date.today()
+    OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty \
+        ).update(approvalman=request.user.operatorname, moneyfund=1400.00, isapproval="同意", approvaldate=today)
+
+    return cc_approvallist(request, curname, curcounty, curhospital)
 
 @login_required(login_url="/login/")
 def changepassword(request):

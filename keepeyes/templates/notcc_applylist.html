@@ -1,5 +1,5 @@
 {% extends "selectbase.html" %}
-{% block title %}白内障人员信息查询{% endblock %}
+{% block title %}不符合手术人员信息列表{% endblock %}
 {% block admincssjs %}{% endblock %}
 
 {% block orderselect %}
@@ -11,7 +11,7 @@
 </form>
 {% endblock %}
 
-{% block tabletitle %}白内障手术人员信息列表{% endblock %}
+{% block tabletitle %}不符合手术人员信息列表{% endblock %}
 {% block ordertable %}
 <table align="center" class="pure-table pure-table-bordered">
   <thead>
@@ -43,4 +43,8 @@
   {% endfor %}
 </table>
 
+{% endblock %}
+
+{% block otherbutton %}
+  <a class="pure-button pure-button-primary" style="margin-left: 30px;" href="/notcc_input/">新增</a>
 {% endblock %}

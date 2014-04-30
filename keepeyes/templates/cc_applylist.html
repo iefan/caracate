@@ -14,7 +14,7 @@
 {% block tabletitle %}白内障手术人员信息列表{% endblock %}
 {% block ordertable %}
 <div class="pure-u-4-5 " style="margin:5px 7.4% 10px 7.4%; overflow-x: auto; overflow-y: auto; height: 90%; width:85%;"> 
-<table align="center" class="pure-table pure-table-bordered" width="110%" height="100%" id="SelectTable">
+<table align="center" class="pure-table pure-table-bordered" width="101%" height="100%" id="SelectTable">
   <thead>
     <tr>
       <th>序号</th>
@@ -35,7 +35,7 @@
     {% endfor %}
 
     {% if not curid %}
-    <td>&nbsp;</td>
+    <td>已审核</td>
     {% else %}
     <td><a class="pure-button " href="/cc_modify/{{ curid }}/">修改</a></td>
     {% endif %}
@@ -44,4 +44,8 @@
   {% endfor %}
 </table>
 </div>
+{% endblock %}
+
+{% block otherbutton %}
+<a class="pure-button pure-button-primary" style="margin-left: 30px;" href="/cc_input/">新增</a>
 {% endblock %}

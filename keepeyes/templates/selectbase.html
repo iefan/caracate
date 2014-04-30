@@ -41,10 +41,12 @@
         <input name="allPostCounts" type="hidden" size="2" value={{allPostCounts}}>
         <input name="pageType" type="hidden" size="2" value="">
         <span>页</span>
-        <input type="submit" value="跳转">
+        <input type="submit" value="跳转"> {% block otherbutton %}{% endblock %}
       </fieldset>
     </form>
     </div>
   </div>
 </div>
+
 {% endblock %}
+

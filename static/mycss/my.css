@@ -20,8 +20,8 @@
 }
 /*导航栏下的信息显示栏*/
 .splash3{
-    margin: 12px 0px 0px 0px;
-    padding: 0px;
+    margin: 12px 0px 10px 0px;
+    padding-top: 10px;
     background: #eee;
     text-align: center;
 }

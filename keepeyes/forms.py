@@ -42,6 +42,12 @@ class CcInputForm(forms.ModelForm):
     def clean(self):
         return self.cleaned_data
 
+    def clean_moneytotal(self):
+        moneytotal = self.cleaned_data['moneytotal']
+        if moneytotal is None:
+            raise forms.ValidationError("请录入手术费用")
+        return moneytotal
+
     def clean_ppid(self):
         ppid   = self.cleaned_data['ppid']
         curpp = OperationsModel.objects.filter(ppid=ppid)
@@ -81,10 +87,16 @@ class NotFitCcInputForm(forms.ModelForm):
     class Meta:
         model = NotfitOperationsModel
         fields = ('name','sex','county','age','hospital','address','phone',\
-            'moneytotal','moneyfund','hospitalleader','reason','hospitalID','operatorname',)
+            'moneytotal', 'hospitalleader','reason','hospitalID','operatorname',)
 
     def clean(self):
         return self.cleaned_data
+
+    def clean_moneytotal(self):
+        moneytotal = self.cleaned_data['moneytotal']
+        if moneytotal is None:
+            raise forms.ValidationError("请录入手术费用")
+        return moneytotal
 
     def clean_phone(self):
         phone  = self.cleaned_data['phone']
@@ -138,9 +150,12 @@ class Approval_Cc_SelectForm(forms.ModelForm):
     lsthospital = list(jzr.HOSPITAL_CHOICES)
     lsthospital.insert(0, ("", "--"))
     hospital = forms.ChoiceField(choices = tuple(lsthospital), label="医院名称",)
+    lstcounty = list(jzr.COUNTY_CHOICES)
+    lstcounty.insert(0, ("", "--"))
+    county = forms.ChoiceField(choices = tuple(lstcounty), label="区县名称",)
     class Meta:
         model = OperationsModel
-        fields = ('name', 'ppid', 'hospital',)
+        fields = ('name', 'county', 'hospital',)
 
     def clean(self):
         return self.cleaned_data
