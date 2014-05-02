@@ -7,7 +7,7 @@ class OperationsModel(models.Model):
     name            = models.CharField(max_length=30, verbose_name="姓名")
     sex             = models.CharField(choices=jzr.SEX_CHOICES, max_length=2, verbose_name="性别", default="男")
     county          = models.CharField(choices=jzr.COUNTY_CHOICES, max_length=30, verbose_name="区县", default="金平区")
-    ppid            = models.CharField(unique=True, max_length=30, verbose_name="身份证号")
+    ppid            = models.CharField(max_length=30, verbose_name="身份证号")
     operationtime   = models.DateField(verbose_name="手术时间", )
     hospital        = models.CharField(choices=jzr.HOSPITAL_CHOICES, max_length=30, verbose_name="医院名称", default="国际眼科中心")
     whicheye        = models.CharField(choices=jzr.EYE_CHOICES, max_length=10, verbose_name="术眼", default="左眼")
