@@ -59,3 +59,17 @@ class NotfitOperationsModel(models.Model):
     def __unicode__(self):
         return "%s %s %s %s %s %s %s %s" % (self.name, self.county, self.reason, \
             self.hospital, self.phone, self.moneytotal, self.operatorname, self.approvalman,)
+
+class DownloadFilesModel(models.Model):
+    unitname        = models.CharField(choices=jzr.UNITNAMES_CHOICES, max_length=30, verbose_name="单位名称")
+    datayears            = models.CharField(max_length=100, verbose_name="年份")
+    filename        = models.CharField(max_length=100, verbose_name="文件位置")
+   
+    class Meta:
+        ordering = ['datayears',]
+        verbose_name = "文件下载信息"  
+        verbose_name_plural = "文件下载信息"  
+        # app_label = u"信息管理"
+
+    def __unicode__(self):
+        return "%s %s %s " % (self.unitname, self.datayears, self.filename, )

@@ -1,0 +1,41 @@
+{% extends "selectbase.html" %}
+{% block title %}数据文件下载{% endblock %}
+{% block admincssjs %}{% endblock %}
+
+{% block orderselect %}
+<form method="POST" action="/cc_select/" class="pure-form">
+  <fieldset align="center" class="mselect">
+    {{ form }}
+    <button type="submit" class="pure-button pure-button-success">查询</button>
+  </fieldset>
+</form>
+{% endblock %}
+
+{% block tabletitle %}数据文件下载{% endblock %}
+{% block ordertable %}
+<table align="center" class="pure-table pure-table-bordered" width="600px" id="SelectTable">
+  <thead>
+    <tr>
+      <th>序号</th>
+      {% for item in curppname %}
+      <th>{{ item }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  {% for ipp in curpp %}
+  <tr>
+    <td>{{ forloop.counter|add:startPos}}</td>
+    {% for item in ipp %}
+    {% if not item %}
+    <td>&nbsp;</td>
+    {% else %}
+    <td>{{ item }}</td>
+    {% endif %}
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
+
+{% block otherbutton %}
+{% endblock %}

@@ -36,6 +36,9 @@ urlpatterns = patterns('',
     url(r'^notfit_cc_approvalinput/(\d+)/$', 'keepeyes.views.notfit_cc_approvalinput'),
     url(r'^notfit_cc_onekeyapproval/$', 'keepeyes.views.notfit_cc_onekeyapproval'),
 
+    url(r'^downloadfile_list/$', 'keepeyes.views.downloadfile_list'),
+    url(r'^generate_downfiles/$', 'keepeyes.views.generate_downfiles'),
+
     # url(r'^cc_modify/(\d+)/$', 'keepeyes.views.cc_modify'),
 
 )

@@ -1,7 +1,7 @@
 #coding=utf8
 import keepeyes.resources as jzr
 from django import forms
-from keepeyes.models import OperationsModel, NotfitOperationsModel
+from keepeyes.models import OperationsModel, NotfitOperationsModel, DownloadFilesModel
 from django.contrib.auth import authenticate
 from jzuser.models import MyUser
 
@@ -222,3 +222,11 @@ class Approval_Cc_Form(forms.ModelForm):
     def clean(self):
         return self.cleaned_data
 
+class DownLoadFile_Form(forms.ModelForm):
+
+    class Meta:
+        model = DownloadFilesModel
+        fields = ('unitname', 'datayears',)
+
+    def clean(self):
+        return self.cleaned_data

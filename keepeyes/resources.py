@@ -21,6 +21,67 @@ def setOutCell(outSheet, col, row, value):
         if newCell:
             newCell.xf_idx = previousCell.xf_idx
 
+def writecsv(downloaddir):
+    import pymysql, csv, os
+    # downloaddir="downloadfiles/"
+    lstresult = []
+
+    conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl",db="kfbnz", use_unicode=1, charset='utf8')
+    cur = conn.cursor()
+    lstcounty = []
+    sqltmp = "select distinct(county) from keepeyes_operationsmodel"
+    cur.execute(sqltmp)
+    for icounty in cur:
+        lstcounty.append(icounty[0])
+
+    lsthospital = []
+    sqltmp = "select distinct(hospital) from keepeyes_operationsmodel"
+    cur.execute(sqltmp)
+    for ihospital in cur:
+        lsthospital.append(ihospital[0])
+    lstyear = []
+    
+    sqltmp = "select distinct(YEAR(operationtime)) from keepeyes_operationsmodel"
+    cur.execute(sqltmp)
+    for iyear in cur:
+        lstyear.append(iyear[0])
+    
+
+    strsql = "select name,sex,county,ppid,operationtime,hospital,whicheye,address, \
+        phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
+        isapproval,approvaldate,approvalman from keepeyes_operationsmodel "
+    lsthead = ["姓名",  "性别", "身份证号", "手术时间", "手术医院", "术眼", "家庭住址", "联系电话", "手术费用（元）","基金补助金额（元）",  "住院号", "是否使用软晶体"]
+
+    #医院按年份输出
+    for ihospital in lsthospital:
+        for iyear in lstyear:
+            tmpcsvname = ihospital + "-" + str(iyear) + ".csv"
+            tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+            with open(tmpcsvname, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(lsthead)
+                strsqltmp = strsql + " where YEAR(operationtime)=%s order by operationtime" % iyear
+                cur.execute(strsqltmp)
+                for r in cur:
+                    (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
+                    writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
+
+    #区县按年份输出
+    for icounty in lstcounty:
+        for iyear in lstyear:
+            tmpcsvname = icounty + "-" + str(iyear) + ".csv"
+            tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+            with open(tmpcsvname, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(lsthead)
+                strsqltmp = strsql + " where YEAR(operationtime)=%s and county='%s'" % (iyear, icounty)
+                cur.execute(strsqltmp)
+                for r in cur:
+                    (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
+                    writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
+    cur.close()
+    conn.close()
+
 # !!!===!!! MUST NEED ADD 'u' BEFORE IN UNICODE ! ===!!!
 UNITGROUP_CHOICES = (\
         ('0', '市残联'),

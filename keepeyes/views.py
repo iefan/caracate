@@ -1,13 +1,15 @@
 #coding=utf8
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
-from keepeyes.models import OperationsModel, NotfitOperationsModel
+from keepeyes.models import OperationsModel, NotfitOperationsModel, DownloadFilesModel
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from keepeyes.forms import SelectCcForm, CcInputForm, CcModifyForm, ChangePasswordForm
 from keepeyes.forms import NotFitSelectCcForm, NotFitCcInputForm, NotFitCcModifyForm
-from keepeyes.forms import Approval_Cc_SelectForm, Approval_Cc_Form
+from keepeyes.forms import Approval_Cc_SelectForm, Approval_Cc_Form, DownLoadFile_Form
 import datetime
+import keepeyes.resources as jzr
+from caracate.settings import BASE_DIR
 # from django.db.models import Q
 
 MYPAGES = 10
@@ -498,3 +500,66 @@ def changepassword(request):
             user.save()
             return HttpResponseRedirect("/login/")
     return render_to_response('changepassword.html', {'form':form,}, context_instance=RequestContext(request))
+
+@login_required(login_url="/login/")
+def downloadfile_list(request, unitname="", datayears=""):
+    lstauth = [0,2]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+    if request.user.unitgroup == 2:
+        unitname = request.user.unitname #单位名称
+    else:
+        unitname = ""
+
+    curppname = ["单位名称", "年份", "文件"]
+    curpp     = []
+
+    if unitname == "":
+        if request.method == 'POST':
+            unitname    = request.POST['unitname']
+            datayears       = request.POST['datayears']
+    form = DownLoadFile_Form(initial={'unitname':unitname, 'datayears':datayears}) #页面查询窗体
+
+    #=====================new page=================
+    try:
+        curPage = int(request.GET.get('curPage', '1'))
+        allPostCounts = int(request.GET.get('allPostCounts',''))
+        pageType = str(request.GET.get('pageType', ''))
+    except ValueError:
+        curPage = 1
+        allPostCounts = ""
+        pageType = ''
+
+    if curPage < 1:
+        curPage = 1
+    #判断点击了【下一页】还是【上一页】
+    if pageType == 'pageDown':
+        curPage += 1
+    elif pageType == 'pageUp':
+        curPage -= 1
+
+    startPos = (curPage-1) * MYPAGES
+    endPos = startPos + MYPAGES
+    cur_re = DownloadFilesModel.objects.filter(unitname__icontains=unitname, datayears__icontains=datayears)[startPos:endPos]
+    # posts = BlogPost.objects.all()[startPos:endPos]
+
+    if allPostCounts == "": #标记1
+        allPostCounts = DownloadFilesModel.objects.filter(unitname__icontains=unitname, datayears__icontains=datayears).count()
+    if allPostCounts == 0:
+        curPage = 0
+        allPage = 0
+    # allPostCounts = BlogPost.objects.count()
+    allPage = int(allPostCounts / MYPAGES)
+    if (allPostCounts % MYPAGES) > 0:
+        allPage += 1
+
+    # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
+    if len(cur_re) != 0:
+        for ipp in cur_re:
+            curpp.append([[ipp.unitname, ipp.datayears, ipp.filename],])
+    
+    return render_to_response("download_list.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage},context_instance=RequestContext(request))  
+
+def generate_downfiles(request):
+    jzr.writecsv(BASE_DIR)
+    return HttpResponseRedirect("/downloadfile_list/")
