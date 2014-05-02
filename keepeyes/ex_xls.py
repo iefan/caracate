@@ -4,7 +4,8 @@
 # from  string import zfill as z
 import pymysql
 import xlrd, datetime, xlwt
-from tempfile import TemporaryFile
+import csv
+# from tempfile import TemporaryFile
 
 conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl",db="kfbnz", use_unicode=1, charset='utf8')
 # xlsfilename  = "D:\yk2013cc.xls"
@@ -91,16 +92,16 @@ def writexlsex():
     cur.execute(strsqlmonth0)
     for iyear in cur:
         lstyear.append(iyear[0])
-    lstmonth = []
-    strsqlmonth0 = "select distinct(MONTH(operationtime)) from keepeyes_operationsmodel"
-    cur.execute(strsqlmonth0)
-    for imonth in cur:
-        lstmonth.append(imonth[0])
+    # lstmonth = []
+    # strsqlmonth0 = "select distinct(MONTH(operationtime)) from keepeyes_operationsmodel"
+    # cur.execute(strsqlmonth0)
+    # for imonth in cur:
+    #     lstmonth.append(imonth[0])
     # print(lstmonth)
     # return
 
-    # fnt = xlwt.Font()
-    # fnt.name = 'Arial'
+    fnt = xlwt.Font()
+    fnt.name = '宋体'
     # borders = xlwt.Borders()
     # borders.left = xlwt.Borders.THICK
     # borders.right = xlwt.Borders.THICK
@@ -111,6 +112,8 @@ def writexlsex():
     # pattern.pattern_fore_colour = 0x0A
     styledate = xlwt.XFStyle()
     styledate.num_format_str='YYYY-MM-DD'
+    otherstyle = xlwt.XFStyle()
+    otherstyle.font = fnt
     # style.font = fnt
     # style.borders = borders
     # style.pattern = pattern
@@ -120,12 +123,12 @@ def writexlsex():
     lsthead = ["姓名",  "性别", "身份证号", "手术时间", "手术医院", "术眼", "家庭住址", "联系电话", "手术费用（元）","基金补助金额（元）",  "住院号", "是否使用软晶体"]
 
     for iyear in lstyear:
-        book = xlwt.Workbook()
-        for imonth in lstmonth:
+        for imonth in list(range(1,13)):
+            book = xlwt.Workbook(encoding='utf-8')
             strsqltmp = strsql + " where YEAR(operationtime)=%s and MONTH(operationtime)=%i" % (iyear, imonth)
             cur.execute(strsqltmp)
 
-            sheet1 = book.add_sheet(str(imonth) + "月")
+            sheet1 = book.add_sheet(str(imonth) + "月", cell_overwrite_ok=True)
             for ihead in list(range(len(lsthead))):
                 # print(lsthead[ihead])
                 sheet1.write(0, ihead, lsthead[ihead])
@@ -137,24 +140,81 @@ def writexlsex():
                 operatorname = r[13]
                 # operationtime = (operationtime - datetime.date(1899, 12, 30)).days
                 # datetime.date(1899,12,30) + datetime.timedelta(days=int(sh.row(indx)[4].value))
+                
                 tmplre =(name,sex, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,)
+
                 for icol in list(range(len(tmplre))):
                     if icol == 3:
                         # print(tmplre[icol], '----------------')
                         sheet1.write(indx_row, icol, tmplre[icol], styledate)
                     else:
-                        sheet1.write(indx_row, icol, tmplre[icol])
+                        sheet1.row(indx_row).write(icol, tmplre[icol],otherstyle)
+                        # sheet1.write(indx_row, icol, tmplre[icol], otherstyle)
                 indx_row += 1
-                print(tmplre)
+                
             sheet1.flush_row_data()
 
             # print(r[0], r[1], r[4], type(r[4]))
 
-        book.save("ab%s.xls" % iyear)
-        book.save(TemporaryFile())
+            book.save("ab%s.xls" % imonth)
+        # book.save(TemporaryFile())
     cur.close()
 
+def writecsv():
+    cur = conn.cursor()
+    lstcounty = []
+    sqltmp = "select distinct(county) from keepeyes_operationsmodel"
+    cur.execute(sqltmp)
+    for icounty in cur:
+        lstcounty.append(icounty[0])
+
+    lsthospital = []
+    sqltmp = "select distinct(hospital) from keepeyes_operationsmodel"
+    cur.execute(sqltmp)
+    for ihospital in cur:
+        lsthospital.append(ihospital[0])
+    lstyear = []
+    
+    sqltmp = "select distinct(YEAR(operationtime)) from keepeyes_operationsmodel"
+    cur.execute(sqltmp)
+    for iyear in cur:
+        lstyear.append(iyear[0])
+    
+
+    strsql = "select name,sex,county,ppid,operationtime,hospital,whicheye,address, \
+        phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
+        isapproval,approvaldate,approvalman from keepeyes_operationsmodel "
+    lsthead = ["姓名",  "性别", "身份证号", "手术时间", "手术医院", "术眼", "家庭住址", "联系电话", "手术费用（元）","基金补助金额（元）",  "住院号", "是否使用软晶体"]
+
+    #医院按年份输出
+    for ihospital in lsthospital:
+        for iyear in lstyear:
+            tmpcsvname = ihospital + "-" + str(iyear) + ".csv"
+            with open(tmpcsvname, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(lsthead)
+                strsqltmp = strsql + " where YEAR(operationtime)=%s order by operationtime" % iyear
+                cur.execute(strsqltmp)
+                for r in cur:
+                    (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
+                    writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
+
+    #区县按年份输出
+    for icounty in lstcounty:
+        for iyear in lstyear:
+            tmpcsvname = icounty + "-" + str(iyear) + ".csv"
+            with open(tmpcsvname, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(lsthead)
+                strsqltmp = strsql + " where YEAR(operationtime)=%s and county='%s'" % (iyear, icounty)
+                cur.execute(strsqltmp)
+                for r in cur:
+                    (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
+                    writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
+
+    cur.close()
 
 if __name__ == '__main__':
     # readxlsex()
-    writexlsex()
+    # writexlsex()
+    writecsv()
