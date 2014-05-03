@@ -3,7 +3,7 @@
 {% block admincssjs %}{% endblock %}
 
 {% block orderselect %}
-<form method="POST" action="/cc_select/" class="pure-form">
+<form method="POST" action="/downloadfile_list/" class="pure-form">
   <fieldset align="center" class="mselect">
     {{ form }}
     <button type="submit" class="pure-button pure-button-success">查询</button>
@@ -22,7 +22,7 @@
       {% endfor %}
     </tr>
   </thead>
-  {% for ipp in curpp %}
+  {% for ipp, ippdownfile in curpp %}
   <tr>
     <td>{{ forloop.counter|add:startPos}}</td>
     {% for item in ipp %}
@@ -32,8 +32,15 @@
     <td>{{ item }}</td>
     {% endif %}
     {% endfor %}
-  </tr>
+  
+    {% if not ippdownfile %}
+    <td>&nbsp;</td>
+    {% else %}
+    <td><a class="pure-button " href="/downfile_bnz/{{ ippdownfile }}/">下载</a></td>
+    {% endif %}
+    
   {% endfor %}
+  </tr>
 </table>
 {% endblock %}
 

@@ -62,8 +62,9 @@ class NotfitOperationsModel(models.Model):
 
 class DownloadFilesModel(models.Model):
     unitname        = models.CharField(choices=jzr.UNITNAMES_CHOICES, max_length=30, verbose_name="单位名称")
-    datayears            = models.CharField(max_length=100, verbose_name="年份")
+    datayears       = models.CharField(max_length=100, verbose_name="年份")
     filename        = models.CharField(max_length=100, verbose_name="文件位置")
+    updatetime      = models.DateField(verbose_name="更新时间", blank=True, null=True)
    
     class Meta:
         ordering = ['datayears',]

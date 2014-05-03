@@ -7,9 +7,11 @@ from django.template import RequestContext
 from keepeyes.forms import SelectCcForm, CcInputForm, CcModifyForm, ChangePasswordForm
 from keepeyes.forms import NotFitSelectCcForm, NotFitCcInputForm, NotFitCcModifyForm
 from keepeyes.forms import Approval_Cc_SelectForm, Approval_Cc_Form, DownLoadFile_Form
-import datetime
+import datetime, os, base64
 import keepeyes.resources as jzr
 from caracate.settings import BASE_DIR
+# from django.core.servers.basehttp import FileWrapper
+from django.utils.http import urlquote
 # from django.db.models import Q
 
 MYPAGES = 10
@@ -511,7 +513,7 @@ def downloadfile_list(request, unitname="", datayears=""):
     else:
         unitname = ""
 
-    curppname = ["单位名称", "年份", "文件"]
+    curppname = ["单位名称", "年份",  "更新日期", "文件", "下载"]
     curpp     = []
 
     if unitname == "":
@@ -556,10 +558,44 @@ def downloadfile_list(request, unitname="", datayears=""):
     # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
     if len(cur_re) != 0:
         for ipp in cur_re:
-            curpp.append([[ipp.unitname, ipp.datayears, ipp.filename],])
+            downfilename = ipp.filename.encode()
+            downfilename = base64.encodebytes(downfilename)
+            downfilename = downfilename.decode()
+            curpp.append([[ipp.unitname, ipp.datayears,  ipp.updatetime, os.path.basename(ipp.filename),], downfilename])
     
     return render_to_response("download_list.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage},context_instance=RequestContext(request))  
 
+@login_required(login_url="/login/")
 def generate_downfiles(request):
-    jzr.writecsv(BASE_DIR)
+    lstauth = [0,]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+
+    lstresult = jzr.writecsv(BASE_DIR)
+    DownloadFilesModel.objects.all().delete()
+    for item in lstresult:
+        tmpresult = DownloadFilesModel(unitname=item[0], datayears=str(item[1]), filename=item[2], updatetime=item[3])
+        tmpresult.save()
     return HttpResponseRedirect("/downloadfile_list/")
+
+@login_required(login_url="/login/")
+def downfile_bnz(request, downfilename = ""):
+    lstauth = [0,]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+
+    if downfilename == "":
+        return HttpResponseRedirect("/downloadfile_list/")
+
+    downfilename = downfilename.encode()
+    downfilename = base64.decodebytes(downfilename)
+    downfilename = downfilename.decode()
+    # print(downfilename, os.path.basename(downfilename))
+
+    f = open(downfilename)
+    data = f.read()
+    f.close()
+
+    response = HttpResponse(data,  content_type='application/x-download')
+    response['Content-Disposition'] = 'attachment; filename=%s' % urlquote(os.path.basename(downfilename))
+    return response  

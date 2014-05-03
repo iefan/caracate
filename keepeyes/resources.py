@@ -22,7 +22,7 @@ def setOutCell(outSheet, col, row, value):
             newCell.xf_idx = previousCell.xf_idx
 
 def writecsv(downloaddir):
-    import pymysql, csv, os
+    import pymysql, csv, os, datetime
     # downloaddir="downloadfiles/"
     lstresult = []
 
@@ -53,34 +53,41 @@ def writecsv(downloaddir):
     lsthead = ["姓名",  "性别", "身份证号", "手术时间", "手术医院", "术眼", "家庭住址", "联系电话", "手术费用（元）","基金补助金额（元）",  "住院号", "是否使用软晶体"]
 
     #医院按年份输出
+    today = datetime.date.today()
     for ihospital in lsthospital:
         for iyear in lstyear:
-            tmpcsvname = ihospital + "-" + str(iyear) + ".csv"
-            tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
-            with open(tmpcsvname, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(lsthead)
-                strsqltmp = strsql + " where YEAR(operationtime)=%s order by operationtime" % iyear
-                cur.execute(strsqltmp)
-                for r in cur:
-                    (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
-                    writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
+            strsqltmp = strsql + " where YEAR(operationtime)=%s order by operationtime" % iyear
+            n = cur.execute(strsqltmp)
+            if n != 0:                
+                tmpcsvname = ihospital + "-" + str(iyear) + ".csv"
+                tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+                with open(tmpcsvname, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(lsthead)
+                    for r in cur:
+                        (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
+                        writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
+                lstresult.append([ihospital, iyear, tmpcsvname, today])
 
     #区县按年份输出
     for icounty in lstcounty:
         for iyear in lstyear:
-            tmpcsvname = icounty + "-" + str(iyear) + ".csv"
-            tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
-            with open(tmpcsvname, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(lsthead)
-                strsqltmp = strsql + " where YEAR(operationtime)=%s and county='%s'" % (iyear, icounty)
-                cur.execute(strsqltmp)
-                for r in cur:
-                    (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
-                    writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
+            strsqltmp = strsql + " where YEAR(operationtime)=%s and county='%s'" % (iyear, icounty)
+            n = cur.execute(strsqltmp)
+            if n!= 0:
+                tmpcsvname = icounty + "-" + str(iyear) + ".csv"
+                tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+                with open(tmpcsvname, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(lsthead)
+                    for r in cur:
+                        (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
+                        writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
+                lstresult.append([ihospital, iyear, tmpcsvname, today])
+
     cur.close()
     conn.close()
+    return lstresult
 
 # !!!===!!! MUST NEED ADD 'u' BEFORE IN UNICODE ! ===!!!
 UNITGROUP_CHOICES = (\
