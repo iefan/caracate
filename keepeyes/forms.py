@@ -5,6 +5,29 @@ from keepeyes.models import OperationsModel, NotfitOperationsModel, DownloadFile
 from django.contrib.auth import authenticate
 from jzuser.models import MyUser
 
+class InitUserPasswordForm(forms.Form):
+    '''更改密码视图'''
+    username        = forms.CharField(max_length=100, label="用户名",)
+    newpassword     = forms.CharField(max_length=100, label="新密码",widget=forms.PasswordInput())
+    newpassword2    = forms.CharField(max_length=100, label="重复新密码",widget=forms.PasswordInput())
+    
+    def clean(self):
+        return self.cleaned_data
+    
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if username == "":
+            raise forms.ValidationError("必须输入用户名!")
+        if len(MyUser.objects.filter(unitsn=username)) == 0:
+            raise forms.ValidationError("当前系统没有此用户!")
+        return username
+
+    def clean_newpassword2(self):
+        newpassword = self.cleaned_data['newpassword']
+        newpassword2 = self.cleaned_data['newpassword2']
+        if newpassword2 != newpassword:
+            raise forms.ValidationError("两次输入密码不正确!")
+
 class ChangePasswordForm(forms.Form):
     '''更改密码视图'''
     # username        = forms.CharField(max_length=100, label="用户名",)

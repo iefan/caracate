@@ -6,9 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from keepeyes.forms import SelectCcForm, CcInputForm, CcModifyForm, ChangePasswordForm
 from keepeyes.forms import NotFitSelectCcForm, NotFitCcInputForm, NotFitCcModifyForm
-from keepeyes.forms import Approval_Cc_SelectForm, Approval_Cc_Form, DownLoadFile_Form
+from keepeyes.forms import Approval_Cc_SelectForm, Approval_Cc_Form, DownLoadFile_Form, InitUserPasswordForm
 import datetime, os, base64
 import keepeyes.resources as jzr
+from jzuser.models import MyUser
 from caracate.settings import BASE_DIR
 # from django.core.servers.basehttp import FileWrapper
 from django.utils.http import urlquote
@@ -501,6 +502,24 @@ def changepassword(request):
             user.set_password(newpassword)
             user.save()
             return HttpResponseRedirect("/login/")
+    return render_to_response('changepassword.html', {'form':form,}, context_instance=RequestContext(request))
+
+@login_required(login_url="/login/")
+def inituserpassword(request):
+    lstauth = [0,]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+    # user = request.user
+    form = InitUserPasswordForm()
+    if request.method == "POST":
+        form = InitUserPasswordForm(request.POST)
+        if form.is_valid():
+            username = request.POST['username']
+            newpassword = request.POST['newpassword']            
+
+            user = MyUser.objects.filter(unitsn=username)[0]
+            user.set_password(newpassword)
+            user.save()
     return render_to_response('changepassword.html', {'form':form,}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")

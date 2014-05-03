@@ -18,6 +18,7 @@ urlpatterns = patterns('',
     url(r'^logout/$', logout,{'template_name':'logout.html'}),
     url(r'^login/$', myuser_login,  {'template_name': 'login.html'}),
     url(r'^changepassword/$', 'keepeyes.views.changepassword'),
+    url(r'^inituserpassword/$', 'keepeyes.views.inituserpassword'),
 
     url(r'^$', 'keepeyes.views.index'),
     url(r'^cc_select/$', 'keepeyes.views.cc_select'),
