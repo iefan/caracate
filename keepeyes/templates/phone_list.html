@@ -1,0 +1,34 @@
+{% extends "selectbase.html" %}
+{% block title %}通迅录{% endblock %}
+{% block admincssjs %}{% endblock %}
+
+{% block orderselect %}{% endblock %}
+
+{% block tabletitle %}通迅录{% endblock %}
+{% block ordertable %}
+<table align="center" class="pure-table pure-table-bordered" width="600px" id="SelectTable">
+  <thead>
+    <tr>
+      <th>序号</th>
+      {% for item in curppname %}
+      <th>{{ item }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  {% for ipp in curpp %}
+  <tr>
+    <td>{{ forloop.counter|add:startPos}}</td>
+    {% for item in ipp %}
+    {% if not item %}
+    <td>&nbsp;</td>
+    {% else %}
+    <td>{{ item }}</td>
+    {% endif %}
+    {% endfor %}
+  {% endfor %}
+  </tr>
+</table>
+{% endblock %}
+
+{% block otherbutton %}
+{% endblock %}

@@ -1,7 +1,7 @@
 #coding=utf8
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
-from keepeyes.models import OperationsModel, NotfitOperationsModel, DownloadFilesModel
+from keepeyes.models import OperationsModel, NotfitOperationsModel, DownloadFilesModel, AddressBookModel
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from keepeyes.forms import SelectCcForm, CcInputForm, CcModifyForm, ChangePasswordForm
@@ -659,3 +659,17 @@ def downfile_bnz(request, downfilename = ""):
     response = HttpResponse(data,  content_type='application/x-download')
     response['Content-Disposition'] = 'attachment; filename=%s' % urlquote(os.path.basename(downfilename))
     return response  
+
+def cc_phone(request):
+    curppname = ["单位名称", "姓名", "电话", "邮箱"]
+    curpp     = []
+   
+    cur_re = AddressBookModel.objects.all()
+
+    if len(cur_re) != 0:
+        for ipp in cur_re:
+            curpp.append([ipp.unitname, ipp.name,  ipp.phone, ipp.email,])
+    
+    return render_to_response("phone_list.html",{'curpp': curpp, 'curppname':curppname, "startPos":0, "allPostCounts":len(cur_re),'allPage':0, 'curPage':0},context_instance=RequestContext(request))  
+
+

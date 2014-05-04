@@ -1,8 +1,7 @@
 #coding=utf8
 from django.contrib import admin
-from keepeyes.models import OperationsModel, NotfitOperationsModel
+from keepeyes.models import AddressBookModel
 
-admin.site.register(OperationsModel)
-admin.site.register(NotfitOperationsModel)
+admin.site.register(AddressBookModel)
 # admin.site.register(ApprovalModel)
 # Register your models here.

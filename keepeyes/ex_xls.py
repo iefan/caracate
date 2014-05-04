@@ -9,7 +9,83 @@ import csv
 
 conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl",db="kfbnz", use_unicode=1, charset='utf8')
 xlsfilename  = "D:\yk2013cc.xls"
+xlsfilename2  = "D:\yk2013notcc.xls"
 # xlsfilename  = "yk2013cc.xls"
+
+def readxlsex2():
+    strsql = "select name,sex,county,age,hospital,address,phone,\
+        moneytotal,moneyfund,reason,hospitalID,checkdate,operatorname,\
+        isapproval,approvaldate,approvalman from keepeyes_notfitoperationsmodel"
+    cur = conn.cursor()
+    cur.execute(strsql)
+    for r in cur:
+        print(r)
+
+    # return
+    COUNTY_CHOICES = ('金平区','龙湖区','濠江区','澄海区','潮阳区','潮南区','南澳县',)
+
+    sql1 = "insert into keepeyes_notfitoperationsmodel(name,sex,county,age,hospital,address,phone,\
+        moneytotal,moneyfund,reason,hospitalID,checkdate,operatorname,\
+        isapproval,approvaldate,approvalman) values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s, %s, %s, %s)"
+    bk = xlrd.open_workbook(xlsfilename2)
+    totalmoney = 0
+    for ish in list(range(0,12)):
+        sh = bk.sheets()[ish]
+        # print(bk.sheets(), len(bk.sheets()), sh)
+        nrows =  sh.nrows
+        for indx in range(4, nrows):
+            #姓名  性别  身份证号    手术时间    手术医院    术眼  家庭住址    联系电话    手术费用（元） 基金补助金额（元）   住院号        
+            name            = sh.row(indx)[1].value.strip()
+            name            = name.replace(' ', '').replace('　', '')
+            if name == "":
+                # total += indx
+                # print(indx, "===============================", sh.name, total, totalmoney)
+                break;
+            sex             = sh.row(indx)[2].value.strip()
+            age             = int(sh.row(indx)[3].value.strip())
+            operationtime   = datetime.date(1899,12,30) + datetime.timedelta(days=int(sh.row(indx)[4].value))
+            # hospital        = sh.row(indx)[5].value
+            hospital        = "国际眼科中心"
+            whicheye        = sh.row(indx)[6].value.strip()
+            address         = sh.row(indx)[7].value.strip()
+            county          = address[:3]
+            
+            if type(sh.row(indx)[8].value) == type("a"):
+                phone = sh.row(indx)[8].value.split("/")[0]
+            else:
+                phone = str(int(sh.row(indx)[8].value))
+            moneytotal      = "%.2f" % sh.row(indx)[9].value
+            moneyfund       = "%.2f" % sh.row(indx)[10].value
+            if type(sh.row(indx)[11].value) == type("a"):
+                hospitalnumber = sh.row(indx)[11].value
+            else:
+                hospitalnumber = str(int(sh.row(indx)[11].value))
+
+            softcrystal     = "是"
+            operatorname    = "黄丹珊"
+            isapproval      = "同意"
+            approvaldate    = datetime.date(2014,3,18)
+            approvalman     = "iefan"
+            totalmoney += float(moneyfund)
+            # print(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,isapproval, approvaldate, approvalman)
+            
+            tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,operatorname,isapproval, approvaldate, approvalman)
+            if county not in COUNTY_CHOICES:
+                print("EEEEEEEEEEEEEEEEEEEEEEEEE", county, sh.name, tmplstr)
+                break
+
+            # try:
+            #     n = cur.execute(sql1,tmplstr)
+            #     conn.commit()
+            #     # print(sh.name, "OK")
+            # except:
+            #     print("Error", tmplstr, sh.name)
+            #     pass
+    cur.close()
+
+    #    print sh.ncols
+
+
 def readxlsex():
     strsql = "select name,sex,county,ppid,operationtime,hospital,whicheye,address, \
     phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \

@@ -1,6 +1,7 @@
 #coding=utf8
 from django.db import models
 import keepeyes.resources as jzr
+from django.utils.http import urlquote
 # from datetime import date
 
 class OperationsModel(models.Model):
@@ -28,7 +29,7 @@ class OperationsModel(models.Model):
         verbose_name_plural = "手术人员信息"  
         # app_label = u"信息管理"
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s %s %s %s %s %s %s %s %s" % (self.name, self.county, self.operationtime, \
             self.hospital, self.whicheye, self.phone, self.moneytotal, self.operatorname, self.approvalman,)
 
@@ -56,7 +57,7 @@ class NotfitOperationsModel(models.Model):
         verbose_name_plural = "不适合手术人员信息"  
         # app_label = u"信息管理"
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s %s %s %s %s %s %s %s" % (self.name, self.county, self.reason, \
             self.hospital, self.phone, self.moneytotal, self.operatorname, self.approvalman,)
 
@@ -72,5 +73,21 @@ class DownloadFilesModel(models.Model):
         verbose_name_plural = "文件下载信息"  
         # app_label = u"信息管理"
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s %s %s " % (self.unitname, self.datayears, self.filename, )
+
+
+class AddressBookModel(models.Model):
+    name            = models.CharField(max_length=50, verbose_name="姓名")
+    unitname        = models.CharField(choices=jzr.UNITNAMES_CHOICES, max_length=30, verbose_name="单位")
+    phone           = models.CharField(max_length=100, verbose_name="电话")
+    email           = models.CharField(max_length=100, verbose_name="邮箱", blank=True, null=True)
+   
+    class Meta:
+        ordering = ['unitname',]
+        verbose_name = "通迅录"  
+        verbose_name_plural = "通迅录"  
+        # app_label = u"信息管理"
+
+    def __str__(self):
+        return "%s %s %s %s " % (self.name, self.unitname, self.phone, self.email)
