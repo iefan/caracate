@@ -8,8 +8,8 @@ import csv
 # from tempfile import TemporaryFile
 
 conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl",db="kfbnz", use_unicode=1, charset='utf8')
-# xlsfilename  = "D:\yk2013cc.xls"
-xlsfilename  = "yk2013cc.xls"
+xlsfilename  = "D:\yk2013cc.xls"
+# xlsfilename  = "yk2013cc.xls"
 def readxlsex():
     strsql = "select name,sex,county,ppid,operationtime,hospital,whicheye,address, \
     phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
@@ -189,7 +189,7 @@ def writecsv():
     #医院按年份输出
     for ihospital in lsthospital:
         for iyear in lstyear:
-            tmpcsvname = ihospital + "-" + str(iyear) + ".csv"
+            tmpcsvname = ihospital + "-已做手术-" + str(iyear) + ".csv"
             with open(tmpcsvname, 'w', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow(lsthead)
@@ -202,7 +202,7 @@ def writecsv():
     #区县按年份输出
     for icounty in lstcounty:
         for iyear in lstyear:
-            tmpcsvname = icounty + "-" + str(iyear) + ".csv"
+            tmpcsvname = icounty + "-已做手术-" + str(iyear) + ".csv"
             with open(tmpcsvname, 'w', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow(lsthead)
@@ -215,6 +215,6 @@ def writecsv():
     cur.close()
 
 if __name__ == '__main__':
-    # readxlsex()
+    readxlsex()
     # writexlsex()
-    writecsv()
+    # writecsv()

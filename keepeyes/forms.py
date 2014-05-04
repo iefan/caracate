@@ -200,9 +200,11 @@ class SelectCcForm(forms.ModelForm):
     lstcounty = list(jzr.COUNTY_CHOICES)
     lstcounty.insert(0, ("", "--"))
     county = forms.ChoiceField(choices = tuple(lstcounty), label="区县名称",)
+    lstyears = [("", "--"), (2013,2013), (2014,2014)]
+    whichyears = forms.ChoiceField(choices = tuple(lstyears), label="年份")
     class Meta:
         model = OperationsModel
-        fields = ('name', 'ppid', 'county',)
+        fields = ('name', 'county',)
 
     def clean(self):
         return self.cleaned_data

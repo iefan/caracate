@@ -59,7 +59,7 @@ def writecsv(downloaddir):
             strsqltmp = strsql + " where YEAR(operationtime)=%s order by operationtime" % iyear
             n = cur.execute(strsqltmp)
             if n != 0:                
-                tmpcsvname = ihospital + "-" + str(iyear) + ".csv"
+                tmpcsvname = ihospital + "-已做手术-" + str(iyear) + ".csv"
                 tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
                 with open(tmpcsvname, 'w', newline='') as f:
                     writer = csv.writer(f)
@@ -75,7 +75,7 @@ def writecsv(downloaddir):
             strsqltmp = strsql + " where YEAR(operationtime)=%s and county='%s'" % (iyear, icounty)
             n = cur.execute(strsqltmp)
             if n!= 0:
-                tmpcsvname = icounty + "-" + str(iyear) + ".csv"
+                tmpcsvname = icounty + "-已做手术-" + str(iyear) + ".csv"
                 tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
                 with open(tmpcsvname, 'w', newline='') as f:
                     writer = csv.writer(f)

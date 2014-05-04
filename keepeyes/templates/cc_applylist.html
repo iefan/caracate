@@ -14,7 +14,20 @@
 {% block tabletitle %}白内障手术人员信息列表{% endblock %}
 {% block ordertable %}
 <div class="pure-u-4-5 " style="margin:5px 7.4% 10px 7.4%; overflow-x: auto; overflow-y: auto; height: 90%; width:85%;"> 
-<table align="center" class="pure-table pure-table-bordered" width="101%" height="100%" id="SelectTable">
+<table table-layout="fixed" align="center" class="pure-table pure-table-bordered" width="110%" height="100%" id="SelectTable">
+  <COLGROUP>
+    <COL width="20">
+    <COL width="60">
+    <COL width="20">
+    <COL width="60">
+    <COL width="20">
+    <COL width="20">
+    <COL width="20">
+    <COL width="20"> 
+    <COL width="20"> 
+    <COL width="20"> 
+    <COL width="20"> 
+  </COLGROUP>
   <thead>
     <tr>
       <th>序号</th>
@@ -30,7 +43,11 @@
     {% if not item %}
     <td>&nbsp;</td>
     {% else %}
-    <td>{{ item }}</td>
+      {% if forloop.counter == 11 %}
+        <td style="font-size:6px!important;">{{ item }}</td>
+      {% else %}
+        <td>{{ item }}</td>
+      {% endif %}
     {% endif %}
     {% endfor %}
 
