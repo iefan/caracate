@@ -25,7 +25,7 @@ def readxlsex2():
     COUNTY_CHOICES = ('金平区','龙湖区','濠江区','澄海区','潮阳区','潮南区','南澳县',)
 
     sql1 = "insert into keepeyes_notfitoperationsmodel(name,sex,county,age,hospital,address,phone,\
-        moneytotal,moneyfund,reason,hospitalID,checkdate,operatorname,\
+        reason,hospitalID,checkdate,moneytotal,moneyfund,operatorname,\
         isapproval,approvaldate,approvalman) values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s, %s, %s, %s)"
     bk = xlrd.open_workbook(xlsfilename2)
     totalmoney = 0
@@ -33,8 +33,12 @@ def readxlsex2():
         sh = bk.sheets()[ish]
         # print(bk.sheets(), len(bk.sheets()), sh)
         nrows =  sh.nrows
-        for indx in range(4, nrows):
-            #姓名  性别  身份证号    手术时间    手术医院    术眼  家庭住址    联系电话    手术费用（元） 基金补助金额（元）   住院号        
+        if ish == 11:
+            checkdate = datetime.date(2013, 12, 31)
+        else:
+            checkdate = datetime.date(2013, ish+2, 1) - datetime.timedelta(1)
+        for indx in range(5, nrows):
+            #序号 姓名  性别  年龄  住址  联系电话    不适合手术原因 术前检查费（元）    基金补助金额（元）   ID
             name            = sh.row(indx)[1].value.strip()
             name            = name.replace(' ', '').replace('　', '')
             if name == "":
@@ -42,26 +46,28 @@ def readxlsex2():
                 # print(indx, "===============================", sh.name, total, totalmoney)
                 break;
             sex             = sh.row(indx)[2].value.strip()
-            age             = int(sh.row(indx)[3].value.strip())
-            operationtime   = datetime.date(1899,12,30) + datetime.timedelta(days=int(sh.row(indx)[4].value))
-            # hospital        = sh.row(indx)[5].value
-            hospital        = "国际眼科中心"
-            whicheye        = sh.row(indx)[6].value.strip()
-            address         = sh.row(indx)[7].value.strip()
+            try:
+                age             = int(sh.row(indx)[3].value)
+            except:
+                age = 60
+            address         = sh.row(indx)[4].value.strip()
             county          = address[:3]
-            
-            if type(sh.row(indx)[8].value) == type("a"):
-                phone = sh.row(indx)[8].value.split("/")[0]
+            if type(sh.row(indx)[5].value) == type("a"):
+                phone = sh.row(indx)[5].value.split("/")[0]
             else:
-                phone = str(int(sh.row(indx)[8].value))
-            moneytotal      = "%.2f" % sh.row(indx)[9].value
-            moneyfund       = "%.2f" % sh.row(indx)[10].value
-            if type(sh.row(indx)[11].value) == type("a"):
-                hospitalnumber = sh.row(indx)[11].value
-            else:
-                hospitalnumber = str(int(sh.row(indx)[11].value))
+                phone = str(int(sh.row(indx)[5].value))
+            reason          = sh.row(indx)[6].value.strip()
+            moneytotal      = "%.2f" % sh.row(indx)[7].value
+            moneyfund       = "%.2f" % sh.row(indx)[8].value
+            hospitalID      = sh.row(indx)[9].value
 
-            softcrystal     = "是"
+            hospital        = "国际眼科中心"
+            
+            # if type(sh.row(indx)[11].value) == type("a"):
+            #     hospitalnumber = sh.row(indx)[11].value
+            # else:
+            #     hospitalnumber = str(int(sh.row(indx)[11].value))
+
             operatorname    = "黄丹珊"
             isapproval      = "同意"
             approvaldate    = datetime.date(2014,3,18)
@@ -69,11 +75,14 @@ def readxlsex2():
             totalmoney += float(moneyfund)
             # print(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,isapproval, approvaldate, approvalman)
             
-            tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,operatorname,isapproval, approvaldate, approvalman)
+            tmplstr =(name,sex,county,age,hospital,address,phone,\
+                    reason,hospitalID,checkdate,moneytotal,moneyfund,operatorname,\
+                    isapproval,approvaldate,approvalman)
+            # print('------------', name, moneytotal)
             if county not in COUNTY_CHOICES:
                 print("EEEEEEEEEEEEEEEEEEEEEEEEE", county, sh.name, tmplstr)
                 break
-
+                
             # try:
             #     n = cur.execute(sql1,tmplstr)
             #     conn.commit()
@@ -81,6 +90,7 @@ def readxlsex2():
             # except:
             #     print("Error", tmplstr, sh.name)
             #     pass
+    print(totalmoney)
     cur.close()
 
     #    print sh.ncols
@@ -290,7 +300,106 @@ def writecsv():
 
     cur.close()
 
+
+def readxlsex_tmp():
+    xlsfilename_04  = "D:\yk201404cc.xls"
+    strsql = "select name,sex,county,ppid,operationtime,hospital,whicheye,address, \
+    phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
+    isapproval,approvaldate,approvalman from keepeyes_operationsmodel"
+    # strsql = "select name,county,hospital from keepeyes_operationsmodel"
+    # print(strsql)
+    cur = conn.cursor()
+    # cur.execute(strsql)
+    # for r in cur:
+    #     print(r)
+
+    # return
+    COUNTY_CHOICES = ('金平区','龙湖区','濠江区','澄海区','潮阳区','潮南区','南澳县',)
+
+    # sql1 = "insert into keepeyes_operationsmodel(name,sex,county,ppid,operationtime,hospital,whicheye,address, \
+    #     phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
+    #     isapproval,approvaldate,approvalman) values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s, %s, %s, %s, %s)"
+    sql1 = "insert into keepeyes_operationsmodel(name,sex,county,ppid,operationtime,hospital,whicheye,address, \
+        phone,moneytotal,hospitalnumber,softcrystal,operatorname) \
+        values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s)"
+    bk = xlrd.open_workbook(xlsfilename_04)
+    totalmoney = 0
+    for ish in list(range(0,1)):
+        sh = bk.sheets()[ish]
+        # print(bk.sheets(), len(bk.sheets()), sh)
+        nrows =  sh.nrows
+        for indx in range(4, nrows):
+            #姓名  性别  身份证号    手术时间    手术医院    术眼  家庭住址    联系电话    手术费用（元） 基金补助金额（元）   住院号        
+            name            = sh.row(indx)[1].value.strip()
+            name            = name.replace(' ', '').replace('　', '')
+            if name == "":
+                # total += indx
+                # print(indx, "===============================", sh.name, total, totalmoney)
+                break;
+
+            print(indx, name)
+            sex             = sh.row(indx)[2].value.strip()
+            ppid            = sh.row(indx)[3].value.strip()
+            operationtime   = datetime.date(1899,12,30) + datetime.timedelta(days=int(sh.row(indx)[4].value))
+            # hospital        = sh.row(indx)[5].value
+            hospital        = "国际眼科中心"
+            whicheye        = sh.row(indx)[6].value.strip()
+            address         = sh.row(indx)[7].value.strip()
+            county          = address[:3]
+            
+            if type(sh.row(indx)[8].value) == type("a"):
+                phone = sh.row(indx)[8].value.split("/")[0]
+            else:
+                phone = str(int(sh.row(indx)[8].value))
+            moneytotal      = "%.2f" % sh.row(indx)[9].value
+            # moneyfund       = "%.2f" % sh.row(indx)[10].value
+            if type(sh.row(indx)[10].value) == type("a"):
+                hospitalnumber = sh.row(indx)[10].value
+            else:
+                hospitalnumber = str(int(sh.row(indx)[10].value))
+
+            softcrystal     = sh.row(indx)[11].value
+            operatorname    = "黄丹珊"
+            isapproval      = "待审"
+            # approvaldate    = datetime.date(2014,3,18)
+            # approvalman     = "iefan"
+            totalmoney += float(moneytotal)
+            # print(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,isapproval, approvaldate, approvalman)
+            
+            # tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,operatorname,isapproval, approvaldate, approvalman)
+            tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,hospitalnumber, softcrystal,operatorname)
+            if county not in COUNTY_CHOICES:
+                print("EEEEEEEEEEEEEEEEEEEEEEEEE", county, sh.name, tmplstr)
+                break
+
+
+            # print(tmplstr)
+            # n = cur.execute(sql1,tmplstr)
+            # try:
+            #     # print("========", sql1)
+            #     n = cur.execute(sql1,tmplstr)
+            #     conn.commit()
+            #     # print(sh.name, "OK")
+            # except:
+            #     print("Error", tmplstr, sh.name)
+            #     pass
+    print(totalmoney, '========')
+    cur.close()
+
+    #    print sh.ncols
+
 if __name__ == '__main__':
-    readxlsex()
+    # readxlsex()
+    readxlsex2()
+    # readxlsex_tmp()
     # writexlsex()
     # writecsv()
+
+# insert into keepeyes_operationsmodel(name,sex,county,ppid,operationtime,
+#      hospital,whicheye,address,phone,moneytotal,
+#      hospitalnumber,softcrystal,operatorname,) values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s)
+# Error ('杜绍茂', '男', '龙湖区', '44050519600702141X', datetime.date(2014, 4, 15), 
+#     '国际眼科中心', '左眼', '龙湖区金霞街道中信海滨花园东区32幢802房', '15994945597', 
+#     '6787.03', '40930', '是', '黄丹珊') Sheet1
+
+# insert into keepeyes_operationsmodel(name,sex,county,ppid,operationtime,  hospital,whicheye,address,phone,moneytotal, hospitalnumber,softcrystal,operatorname,) values('杜绍茂', '男', '龙湖区', '44050519600702141X', datetime.date(2014, 4, 15),     '国际眼科中心', '左眼', '龙湖区金霞街道中信海滨花园东区32幢802房', '15994945597',     '6787.03', '40930', '是', '黄丹珊') 

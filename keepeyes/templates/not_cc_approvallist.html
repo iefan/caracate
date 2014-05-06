@@ -3,7 +3,7 @@
 {% block admincssjs %}{% endblock %}
 
 {% block orderselect %}
-<form method="POST" action="/cc_approvallist/" class="pure-form">
+<form method="POST" action="/notfit_cc_approvallist/" class="pure-form">
   <fieldset align="center" class="mselect">
     {{ form }}
     <button type="submit" class="pure-button pure-button-success">查询</button>
@@ -13,7 +13,7 @@
 
 {% block tabletitle %}不符合手术人员列表{% endblock %}
 {% block ordertable %}
-<table align="center" class="pure-table pure-table-bordered">
+<table align="center" class="pure-table pure-table-bordered" >
   <thead>
     <tr>
       <th>序号</th>
@@ -29,7 +29,7 @@
     {% if not item %}
     <td>&nbsp;</td>
     {% else %}
-    <td>{{ item }}</td>
+    <td style="font-size:6px!important;">{{ item }}</td>
     {% endif %}
     {% endfor %}
 

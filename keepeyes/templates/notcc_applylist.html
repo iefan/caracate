@@ -3,7 +3,7 @@
 {% block admincssjs %}{% endblock %}
 
 {% block orderselect %}
-<form method="POST" action="/cc_select/" class="pure-form">
+<form method="POST" action="/notcc_select/" class="pure-form">
   <fieldset align="center" class="mselect">
     {{ form }}
     <button type="submit" class="pure-button pure-button-success">查询</button>
@@ -13,7 +13,20 @@
 
 {% block tabletitle %}不符合手术人员信息列表{% endblock %}
 {% block ordertable %}
-<table align="center" class="pure-table pure-table-bordered">
+<div class="pure-u-4-5 " style="margin:5px 7.4% 10px 7.4%; overflow-x: auto; overflow-y: auto; height: 90%; width:85%;"> 
+<table align="center"  width="110%" height="100%"  class="pure-table pure-table-bordered">
+  <COLGROUP>
+    <COL width="20">
+    <COL width="60">
+    <COL width="20">
+    <COL width="60">
+    <COL width="20">
+    <COL width="100">
+    <COL width="220">
+    <COL width="20"> 
+    <COL width="20"> 
+    <COL width="20"> 
+  </COLGROUP>
   <thead>
     <tr>
       <th>序号</th>
@@ -29,7 +42,11 @@
     {% if not item %}
     <td>&nbsp;</td>
     {% else %}
-    <td>{{ item }}</td>
+      {% if forloop.counter == 11 or forloop.counter == 6%}
+        <td style="font-size:6px!important;">{{ item }}</td>
+      {% else %}
+        <td>{{ item }}</td>
+      {% endif %}
     {% endif %}
     {% endfor %}
 
@@ -42,7 +59,7 @@
   </tr>
   {% endfor %}
 </table>
-
+</div>
 {% endblock %}
 
 {% block otherbutton %}

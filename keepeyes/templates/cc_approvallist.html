@@ -42,11 +42,7 @@
     {% if not item %}
     <td>&nbsp;</td>
     {% else %}
-      {% if forloop.counter == 11 %}
-        <td style="font-size:6px!important;">{{ item }}</td>
-      {% else %}
-        <td>{{ item }}</td>
-      {% endif %}
+    <td style="font-size:6px!important;">{{ item }}</td>
     {% endif %}
     {% endfor %}
 

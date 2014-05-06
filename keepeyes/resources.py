@@ -66,6 +66,8 @@ def writecsv(downloaddir):
                     writer.writerow(lsthead)
                     for r in cur:
                         (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
+                        if type(moneyfund) != type(0.0):
+                            moneyfund = 0.0
                         writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
                 lstresult.append([ihospital, iyear, tmpcsvname, today])
 
@@ -82,8 +84,10 @@ def writecsv(downloaddir):
                     writer.writerow(lsthead)
                     for r in cur:
                         (name,sex,county,ppid,operationtime,hospital,whicheye,address, phone,moneytotal,moneyfund,hospitalnumber,softcrystal) = r[:13]
+                        if type(moneyfund) != type(0.0):
+                            moneyfund = 0.0
                         writer.writerow((name,sex,county,"'" + str(ppid),str(operationtime),hospital,whicheye,address, str(phone),"%.2f" % moneytotal,"%.2f" % moneyfund,str(hospitalnumber),softcrystal))
-                lstresult.append([ihospital, iyear, tmpcsvname, today])
+                lstresult.append([icounty, iyear, tmpcsvname, today])
 
     cur.close()
     conn.close()
@@ -95,6 +99,24 @@ UNITGROUP_CHOICES = (\
         ('1', '区残联'),
         ('2', '医院'),
     )
+UNIT_CHOICES = (\
+    ('国际眼科中心', '国际眼科中心'),
+    ('市中心医院', '市中心医院'),
+    ('潮阳耀辉合作医院', '潮阳耀辉合作医院'),
+    ('潮南民生医院', '潮南民生医院'),
+    ('龙湖医院', '龙湖医院'),
+    ('濠江医院', '濠江医院'),
+    ('澄海人民医院', '澄海人民医院'),
+    ('龙湖区第二人民医院', '龙湖区第二人民医院'),    
+    ('金平区', '金平区'),
+    ('龙湖区', '龙湖区'),
+    ('濠江区', '濠江区'),
+    ('澄海区', '澄海区'),
+    ('潮阳区', '潮阳区'),
+    ('潮南区', '潮南区'),
+    ('南澳县', '南澳县'),
+    )
+
 UNITNAMES_CHOICES = (\
     ('国际眼科中心', '国际眼科中心'),
     ('市中心医院', '市中心医院'),
@@ -146,6 +168,7 @@ HOSPITAL_CHOICES = (\
     ('龙湖区第二人民医院', '龙湖区第二人民医院'),
     )
 ISAPPROVAL_CHOICES = (\
+    ('待审', '待审'),
     ('同意', '同意'),
     ('作废', '作废'),
     ('退审', '退审'),
@@ -158,9 +181,10 @@ ISCAL_CHOICES = (\
     ('已结算','已结算'),
     ('待结算','待结算'),
     )
-YESNO_CHOICE = (\
+ISSOFT_CHOICE = (\
     ('是','是'),
     ('否','否'),
+    ('无植入晶体', '无植入晶体'),
     )
 YESNO01_CHOICE = (\
     ('','--'),

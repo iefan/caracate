@@ -1,7 +1,7 @@
 #coding=utf8
 import keepeyes.resources as jzr
 from django import forms
-from keepeyes.models import OperationsModel, NotfitOperationsModel, DownloadFilesModel
+from keepeyes.models import OperationsModel, NotfitOperationsModel, DownloadFilesModel, GMXModel
 from django.contrib.auth import authenticate
 from jzuser.models import MyUser
 
@@ -54,6 +54,7 @@ class ChangePasswordForm(forms.Form):
             raise forms.ValidationError("两次输入密码不正确!")
 
 class CcInputForm(forms.ModelForm):
+    isapproval = forms.CharField(widget=forms.HiddenInput())
     operationtime   = forms.CharField(error_messages={'required':u'日期不能为空'}, label='手术时间', \
         widget= forms.TextInput())
 
@@ -65,7 +66,7 @@ class CcInputForm(forms.ModelForm):
         model = OperationsModel
         fields = ('name','sex','county','ppid','operationtime','whicheye',\
             'address','phone','moneytotal','hospitalnumber',\
-            'softcrystal', 'operatorname',)
+            'softcrystal', 'operatorname','isapproval',)
 
     def clean(self):
         return self.cleaned_data
@@ -124,6 +125,8 @@ class CcModifyForm(forms.ModelForm):
 
 
 class NotFitCcInputForm(forms.ModelForm):
+    isapproval = forms.CharField(widget=forms.HiddenInput())
+
     lstcounty = list(jzr.COUNTY_CHOICES)
     lstcounty.insert(0, ("", "--"))
     county = forms.ChoiceField(choices = tuple(lstcounty), label="区县名称",)
@@ -131,7 +134,7 @@ class NotFitCcInputForm(forms.ModelForm):
     class Meta:
         model = NotfitOperationsModel
         fields = ('name','sex','county','age','address','phone','checkdate',\
-            'moneytotal',  'reason','hospitalID','operatorname',)
+            'moneytotal',  'reason','hospitalID','operatorname','isapproval')
 
     def clean(self):
         return self.cleaned_data
@@ -214,12 +217,12 @@ class Approval_Cc_SelectForm(forms.ModelForm):
     lsthospital = list(jzr.HOSPITAL_CHOICES)
     lsthospital.insert(0, ("", "--"))
     hospital = forms.ChoiceField(choices = tuple(lsthospital), label="医院名称",)
-    lstcounty = list(jzr.COUNTY_CHOICES)
-    lstcounty.insert(0, ("", "--"))
-    county = forms.ChoiceField(choices = tuple(lstcounty), label="区县名称",)
+    # isapproval = list(jzr.ISAPPROVAL_CHOICES)
+    # isapproval.insert(0, ("", "--"))
+    # county = forms.ChoiceField(choices = tuple(isapproval), label="是否同意",)
     class Meta:
         model = OperationsModel
-        fields = ('name', 'county', 'hospital',)
+        fields = ('name',  'hospital', 'isapproval',)
 
     def clean(self):
         return self.cleaned_data
@@ -252,6 +255,15 @@ class DownLoadFile_Form(forms.ModelForm):
     class Meta:
         model = DownloadFilesModel
         fields = ('unitname', 'datayears',)
+
+    def clean(self):
+        return self.cleaned_data
+
+class GMX_Form(forms.ModelForm):
+
+    class Meta:
+        model = GMXModel
+        fields = ("whichmonth" ,)
 
     def clean(self):
         return self.cleaned_data
