@@ -83,15 +83,6 @@ class CcInputForm(forms.ModelForm):
             raise forms.ValidationError("请录入手术费用")
         return moneytotal
 
-    def clean_ppid(self):
-        ppid   = self.cleaned_data['ppid']
-        curpp = OperationsModel.objects.filter(ppid=ppid)
-        if len(curpp) != 0:
-            raise forms.ValidationError("该身份证号码已录入当前系统！")
-        else:
-            pass
-        return ppid    
-
 class CcModifyForm(forms.ModelForm):
     operationtime   = forms.CharField(error_messages={'required':u'日期不能为空'}, label='手术时间', \
         widget= forms.TextInput())
@@ -144,6 +135,7 @@ class NotFitCcInputForm(forms.ModelForm):
         if age:
             if not age.isdigit():
                 raise forms.ValidationError("年龄必须输入数字")
+        return age
 
     def clean_moneytotal(self):
         moneytotal = self.cleaned_data['moneytotal']
@@ -160,7 +152,7 @@ class NotFitCcInputForm(forms.ModelForm):
 class NotFitCcModifyForm(forms.ModelForm):
     class Meta:
         model = NotfitOperationsModel
-        fields = ('county','age','address','phone','checkdate',\
+        fields = ('county','age','address','phone',\
             'moneytotal', 'reason','hospitalID','operatorname',)
         # exclude=('name','ppid',)
 

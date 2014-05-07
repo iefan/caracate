@@ -25,7 +25,7 @@ def cc_select(request, curid=""):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
-    if request.user.unitgroup == 2:
+    if int(request.user.unitgroup) == 2:
         curhospital = request.user.unitname #医院名称
     else:
         curhospital = "" #市残联
@@ -35,11 +35,16 @@ def cc_select(request, curid=""):
     curpp     = []
 
     (curname, curyears, curisapproval) = ("", "", "")
-    if curname == "":
+    if curid == "":
         if request.method == 'POST':
             curname         = request.POST['name'].strip()
             curisapproval   = request.POST['isapproval']
             curyears        = request.POST['whichyears']
+    else:
+        modifypp        = OperationsModel.objects.get(id=curid)
+        curname         = modifypp.name
+        curisapproval   = modifypp.isapproval
+        curyears        = modifypp.operationtime.year
 
     #=====================new page=================
     try:
@@ -69,9 +74,9 @@ def cc_select(request, curid=""):
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
     if curyears == "":
-        cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval)[startPos:endPos]
+        cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval).order_by('-operationtime')[startPos:endPos]
     else:
-        cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=int(curyears), isapproval__icontains=curisapproval)[startPos:endPos]
+        cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=int(curyears), isapproval__icontains=curisapproval).order_by('-operationtime')[startPos:endPos]
 
     if allPostCounts == "": #标记1
         if curyears == "":
@@ -102,29 +107,24 @@ def cc_input(request):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
-    # request.session['gameclass'] = ""
-    today   = datetime.date.today()
-
-    jscal_min = int(today.isoformat().replace('-', ''))
-    jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
+    thisday = datetime.date.today()
+    jscal_min = int((thisday - datetime.timedelta(60)).isoformat().replace('-', ''))
+    jscal_max = int((thisday + datetime.timedelta(30)).isoformat().replace('-', ''))
 
     form = CcInputForm(initial={'operatorname':request.user.operatorname, 'hospital':request.user.unitname, 'isapproval':"待审"})
-    # print form
-    # gameclass = request.session['gameclass']
     if request.method == "POST":
         form = CcInputForm(request.POST)
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/cc_select/') # Redirect
+            savepp = form.save()
+            return cc_select(request, savepp.id)
     return render_to_response('cc_applyinput.html', {"form":form,"jscal_min":jscal_min, "jscal_max":jscal_max}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
-def cc_modify(request, curid="0"):
+def cc_modify(request, curid=""):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
-
-    if curid == "0":
+    if curid == "":
         return HttpResponseRedirect('/cc_select/')
     
     curpp = OperationsModel.objects.filter(id=curid).exclude(isapproval="同意")
@@ -135,9 +135,9 @@ def cc_modify(request, curid="0"):
 
     nomodifyinfo = ["姓名：%s"  % curpp.name, "身份证号：%s" % curpp.ppid]
 
-    today   = datetime.date.today()
-    jscal_min = int(today.isoformat().replace('-', ''))
-    jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
+    thisday   = datetime.date(curpp.operationtime.year, curpp.operationtime.month, 1)
+    jscal_min = int(thisday.isoformat().replace('-', ''))
+    jscal_max = int((thisday + datetime.timedelta(30)).isoformat().replace('-', ''))
 
     curpp.operatorname = request.user.operatorname
     curpp.hospital = request.user.unitname
@@ -146,7 +146,7 @@ def cc_modify(request, curid="0"):
         form = CcModifyForm(request.POST, instance=curpp) # this can modify the current form
         if form.is_valid():
             form.save()
-            return cc_select(request, curpp.name)
+            return cc_select(request, curpp.id)
 
     return render_to_response('cc_applymodify.html', {"form":form, "nomodifyinfo":nomodifyinfo, "jscal_min":jscal_min, "jscal_max":jscal_max}, context_instance=RequestContext(request))
 
@@ -155,7 +155,7 @@ def notcc_select(request, curid=""):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
-    if request.user.unitgroup == 2:
+    if int(request.user.unitgroup) == 2:
         curhospital = request.user.unitname #医院名称
     else:
         curhospital = "" #市残联
@@ -164,11 +164,16 @@ def notcc_select(request, curid=""):
     curpp     = []
 
     (curname, curyears, curisapproval) = ("", "", "")
-    if curname == "":
+    if curid == "":
         if request.method == 'POST':
             curname         = request.POST['name'].strip()
             curisapproval   = request.POST['isapproval']
             curyears        = request.POST['whichyears']
+    else:
+        modifypp        = NotfitOperationsModel.objects.get(id=curid)
+        curname         = modifypp.name
+        curisapproval   = modifypp.isapproval
+        curyears        = modifypp.checkdate.year
 
     #=====================new page=================
     try:
@@ -199,9 +204,9 @@ def notcc_select(request, curid=""):
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
     if curyears == "":
-        cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval)[startPos:endPos]
+        cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval).order_by('-checkdate')[startPos:endPos]
     else:
-        cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=int(curyears), isapproval__icontains=curisapproval)[startPos:endPos]
+        cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, checkdate__year=int(curyears), isapproval__icontains=curisapproval).order_by('-checkdate')[startPos:endPos]
 
     # cur_re = NotfitOperationsModel.objects.filter(name__icontains=curname, county__icontains=curcounty)[startPos:endPos]
     # posts = BlogPost.objects.all()[startPos:endPos]
@@ -210,7 +215,7 @@ def notcc_select(request, curid=""):
         if curyears == "":
             allPostCounts = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval).count()
         else:
-            allPostCounts = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=int(curyears), isapproval__icontains=curisapproval).count()
+            allPostCounts = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, checkdate__year=int(curyears), isapproval__icontains=curisapproval).count()
 
     if allPostCounts == 0:
         curPage = 0
@@ -236,11 +241,9 @@ def notcc_input(request):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
-    # request.session['gameclass'] = ""
-    today   = datetime.date.today()
-
-    jscal_min = int(today.isoformat().replace('-', ''))
-    jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
+    thisday   = datetime.date.today()
+    jscal_min = int((thisday - datetime.timedelta(60)).isoformat().replace('-', ''))
+    jscal_max = int((thisday + datetime.timedelta(30)).isoformat().replace('-', ''))
 
     form = NotFitCcInputForm(initial={'operatorname':request.user.operatorname, 'hospital':request.user.unitname, 'isapproval':"待审"})
     # print form
@@ -248,30 +251,25 @@ def notcc_input(request):
     if request.method == "POST":
         form = NotFitCcInputForm(request.POST)
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/notcc_select/') # Redirect
+            savepp = form.save()
+            return notcc_select(request, savepp.id)
     return render_to_response('notcc_applyinput.html', {"form":form,"jscal_min":jscal_min, "jscal_max":jscal_max}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
-def notcc_modify(request, curid="0"):
+def notcc_modify(request, curid=""):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
-
-    if curid == "0":
+    if curid == "":
         return HttpResponseRedirect('/notcc_select/')
     
-    try:
-        curpp = NotfitOperationsModel.objects.filter(id=curid).exclude(isapproval="同意")
-        # curpp = NotfitOperationsModel.objects.get(id=curid, approvaldate__isnull=True)
-    except NotfitOperationsModel.DoesNotExist:
-        return HttpResponseRedirect('/notcc_select/')
+    curpp = NotfitOperationsModel.objects.filter(id=curid).exclude(isapproval="同意")
+    if len(curpp) == 1:
+        curpp = curpp[0]
+    else:
+        return HttpResponseRedirect('/cc_select/')
 
-    nomodifyinfo = ["姓名：%s"  % curpp.name, ]
-
-    today   = datetime.date.today()
-    jscal_min = int(today.isoformat().replace('-', ''))
-    jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
+    nomodifyinfo = ["姓名：%s"  % curpp.name, "检查月份：%s年%s月" % (curpp.checkdate.year, curpp.checkdate.month), "年龄：%s" % curpp.age]
 
     curpp.operatorname = request.user.operatorname
     curpp.hospital = request.user.unitname
@@ -280,12 +278,12 @@ def notcc_modify(request, curid="0"):
         form = NotFitCcModifyForm(request.POST, instance=curpp) # this can modify the current form
         if form.is_valid():
             form.save()
-            return notcc_select(request, curpp.name, curpp.county)
+            return notcc_select(request, curpp.id)
 
-    return render_to_response('notcc_applymodify.html', {"form":form, "nomodifyinfo":nomodifyinfo, "jscal_min":jscal_min, "jscal_max":jscal_max}, context_instance=RequestContext(request))
+    return render_to_response('notcc_applymodify.html', {"form":form, "nomodifyinfo":nomodifyinfo}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
-def cc_approvallist(request, curname="", curhospital="", curisapproval=""):
+def cc_approvallist(request, curid = ""):
     lstauth = [0,]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
@@ -294,14 +292,21 @@ def cc_approvallist(request, curname="", curhospital="", curisapproval=""):
         "手术费用", '基金补助', "是否软晶体", "家庭住址", "审核"]
     curpp     = []
 
-    if request.method == 'POST':
-        curname         = request.POST['name'].strip()
-        curhospital     = request.POST['hospital']
-        curisapproval   = request.POST['isapproval']
+    (curname, curhospital, curisapproval)=("", "", "")
+    if curid == "":
+        if request.method == 'POST':
+            curname         = request.POST['name'].strip()
+            curhospital     = request.POST['hospital']
+            curisapproval   = request.POST['isapproval']
+    else:
+        modifypp        = OperationsModel.objects.get(id=curid)
+        curname         = modifypp.name
+        curhospital     = modifypp.hospital
+        curisapproval   = modifypp.isapproval
 
     request.session['cc_name'] = curname
-    request.session['cc_approval'] = curisapproval
     request.session['cc_hospital'] = curhospital
+    request.session['cc_approval'] = curisapproval
     #=====================new page=================
     try:
         curPage = int(request.GET.get('curPage', '1'))
@@ -315,9 +320,9 @@ def cc_approvallist(request, curname="", curhospital="", curisapproval=""):
         get_select_str = "||"
 
     if get_select_str != "||":
-        (curname, curisapproval, curhospital) = get_select_str.split("|")
+        (curname, curhospital, curisapproval) = get_select_str.split("|")
     form = Approval_Cc_SelectForm(initial={'name':curname, 'hospital':curhospital, 'isapproval':curisapproval}) #页面查询窗体
-    get_select_str = "|".join([curname, curisapproval, curhospital])
+    get_select_str = "|".join([curname, curhospital, curisapproval])
 
     if curPage < 1:
         curPage = 1
@@ -329,7 +334,7 @@ def cc_approvallist(request, curname="", curhospital="", curisapproval=""):
 
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
-    cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval)[startPos:endPos]
+    cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval).order_by("-operationtime")[startPos:endPos]
     # posts = BlogPost.objects.all()[startPos:endPos]
 
     if allPostCounts == "": #标记1
@@ -365,17 +370,16 @@ def cc_approvalinput(request, curid=""):
     if curid == "":
         return HttpResponseRedirect('/cc_approvallist/')
 
-    # 如果已经申批，则跳转
+    # 无论是否审批，都可以随时修改
     try:
         curpp = OperationsModel.objects.get(id=curid)
-        # curpp = OperationsModel.objects.get(approvaldate__isnull=True,  id=curid)
     except OperationsModel.DoesNotExist:
         return HttpResponseRedirect('/cc_approvallist/')
 
-    nomodifyinfo = ["姓名：%s"  % curpp.name, "手术费用：%s" % curpp.moneytotal, "医院名称：%s" % curpp.hospital]
+    nomodifyinfo = ["姓名：%s"  % curpp.name, "手术费用：%s" % curpp.moneytotal, "医院名称：%s" % curpp.hospital, "手术时间：%s" % curpp.operationtime]
 
     today   = datetime.date.today()
-    jscal_min = int(today.isoformat().replace('-', ''))
+    jscal_min = int((today - datetime.timedelta(30)).isoformat().replace('-', ''))
     jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
 
     btnname = "修改"
@@ -383,12 +387,14 @@ def cc_approvalinput(request, curid=""):
     if curpp.isapproval != "同意":
         btnname = "审核"
         curpp.approvaldate = today
+        curpp.isapproval = "同意"
     form = Approval_Cc_Form(instance=curpp)
     if request.method == "POST":
         form = Approval_Cc_Form(request.POST, instance=curpp)
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/cc_approvallist/') # Redirect
+            savepp = form.save()
+            return cc_approvallist(request, savepp.id)
+            # return HttpResponseRedirect('/cc_approvallist/') # Redirect
     return render_to_response('cc_approvalinput.html', {"form":form, "nomodifyinfo":nomodifyinfo,"jscal_min":jscal_min, "jscal_max":jscal_max, "btnname":btnname}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
@@ -397,18 +403,18 @@ def cc_onekeyapproval(request):
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
 
-    curname     = request.session['cc_name']
-    curcounty   = request.session['cc_approval']
-    curhospital = request.session['cc_hospital']
+    curname         = request.session['cc_name']
+    curisapproval   = request.session['cc_approval']
+    curhospital     = request.session['cc_hospital']
 
     today   = datetime.date.today()
-    OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty \
-        ).exclude(isapproval="同意").update(approvalman=request.user.operatorname, moneyfund=1400.00, isapproval="同意", approvaldate=today)
+    OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty, \
+        isapproval__icontains=curisapproval).exclude(isapproval="同意").update(approvalman=request.user.operatorname, moneyfund=1400.00, isapproval="同意", approvaldate=today)
 
     return cc_approvallist(request, curname, curcounty, curhospital)
 
 @login_required(login_url="/login/")
-def notfit_cc_approvallist(request, curname="", curhospital="", curisapproval=""):
+def notfit_cc_approvallist(request, curid=""):
     lstauth = [0,]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
@@ -417,10 +423,17 @@ def notfit_cc_approvallist(request, curname="", curhospital="", curisapproval=""
         "手术费用", '基金补助', "不适合手术原因", "医院ID", "月份", "家庭住址", "审核"]
     curpp     = []
 
-    if request.method == 'POST':
-        curname = request.POST['name'].strip()
-        curhospital = request.POST['hospital']
-        curisapproval   = request.POST['isapproval']
+    (curname, curhospital, curisapproval)=("", "", "")
+    if curid == "":
+        if request.method == 'POST':
+            curname         = request.POST['name'].strip()
+            curhospital     = request.POST['hospital']
+            curisapproval   = request.POST['isapproval']
+    else:
+        modifypp        = NotfitOperationsModel.objects.get(id=curid)
+        curname         = modifypp.name
+        curhospital     = modifypp.hospital
+        curisapproval   = modifypp.isapproval
 
     request.session['notfitcc_name'] = curname
     request.session['notfitcc_hospital'] = curhospital
@@ -452,7 +465,7 @@ def notfit_cc_approvallist(request, curname="", curhospital="", curisapproval=""
 
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
-    cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval)[startPos:endPos]
+    cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval).order_by("-checkdate")[startPos:endPos]
     # posts = BlogPost.objects.all()[startPos:endPos]
 
     if allPostCounts == "": #标记1
@@ -488,30 +501,29 @@ def notfit_cc_approvalinput(request, curid=""):
     if curid == "":
         return HttpResponseRedirect('/notfit_cc_approvallist/')
 
-    # 如果已经申批，则跳转
     try:
         curpp = NotfitOperationsModel.objects.get(id=curid)
-        # curpp = NotfitOperationsModel.objects.get(approvaldate__isnull=True,  id=curid)
     except NotfitOperationsModel.DoesNotExist:
         return HttpResponseRedirect('/notfit_cc_approvallist/')
 
-    nomodifyinfo = ["姓名：%s"  % curpp.name, "检查费用：%s" % curpp.moneytotal, "医院名称:%s" % curpp.hospital]
+    nomodifyinfo = ["姓名：%s"  % curpp.name, "检查费用：%s" % curpp.moneytotal, "医院名称:%s" % curpp.hospital, "检查时间：%s" % curpp.checkdate]
 
     today   = datetime.date.today()
-    jscal_min = int(today.isoformat().replace('-', ''))
+    jscal_min = int((today - datetime.timedelta(30)).isoformat().replace('-', ''))
     jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
 
     btnname = "修改"
     curpp.approvalman = request.user.operatorname
-    if not curpp.approvaldate:
+    if curpp.isapproval != "同意":
         btnname = "审核"
         curpp.approvaldate = today
+        curpp.isapproval = "同意"
     form = Approval_Cc_Form(instance=curpp)
     if request.method == "POST":
         form = Approval_Cc_Form(request.POST, instance=curpp)
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/notfit_cc_approvallist/') # Redirect
+            savepp = form.save()
+            return notfit_cc_approvallist(request, savepp.id)
     return render_to_response('not_cc_approvalinput.html', {"form":form, "nomodifyinfo":nomodifyinfo,"jscal_min":jscal_min, "jscal_max":jscal_max, "btnname":btnname}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
@@ -520,12 +532,13 @@ def notfit_cc_onekeyapproval(request):
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
 
-    curname     = request.session['notfitcc_name']
-    curcounty   = request.session['notfitcc_approval']
-    curhospital = request.session['notfitcc_hospital']
+    curname         = request.session['notfitcc_name']
+    curisapproval   = request.session['notfitcc_approval']
+    curhospital     = request.session['notfitcc_hospital']
 
     today   = datetime.date.today()
-    cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty,).exclude(isapproval="同意")
+    cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, \
+        isapproval__icontains=curisapproval).exclude(isapproval="同意")
     if len(cur_re) != 0:
         for ipp in cur_re:
             if ipp.moneytotal >= 350:
@@ -537,7 +550,7 @@ def notfit_cc_onekeyapproval(request):
             ipp.approvaldate    = today
             ipp.save()
     
-    return notfit_cc_approvallist(request, curname, curcounty, curhospital)
+    return notfit_cc_approvallist(request, "")
 
 @login_required(login_url="/login/")
 def changepassword(request):
@@ -575,10 +588,13 @@ def downloadfile_list(request, unitname="", datayears=""):
     lstauth = [0,1,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
-    if request.user.unitgroup == 2:
+
+    if int(request.user.unitgroup) == 2 or int(request.user.unitgroup) == 1:
         unitname = request.user.unitname #单位名称
+        unitreadonly = 1
     else:
         unitname = ""
+        unitreadonly = 0
 
     curppname = ["单位名称", "年份", "更新日期", "文件", "下载"]
     curpp     = []
@@ -587,6 +603,8 @@ def downloadfile_list(request, unitname="", datayears=""):
         if request.method == 'POST':
             unitname    = request.POST['unitname']
             datayears       = request.POST['datayears']
+    if unitreadonly == 1:
+        unitname = request.user.unitname
     form = DownLoadFile_Form(initial={'unitname':unitname, 'datayears':datayears}) #页面查询窗体
 
     #=====================new page=================
@@ -610,7 +628,6 @@ def downloadfile_list(request, unitname="", datayears=""):
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
     cur_re = DownloadFilesModel.objects.filter(unitname__icontains=unitname, datayears__icontains=datayears)[startPos:endPos]
-    # posts = BlogPost.objects.all()[startPos:endPos]
 
     if allPostCounts == "": #标记1
         allPostCounts = DownloadFilesModel.objects.filter(unitname__icontains=unitname, datayears__icontains=datayears).count()
@@ -630,7 +647,7 @@ def downloadfile_list(request, unitname="", datayears=""):
             downfilename = downfilename.decode()
             curpp.append([[ipp.unitname, ipp.datayears,  ipp.updatetime, os.path.basename(ipp.filename),], downfilename])
     
-    return render_to_response("download_list.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage},context_instance=RequestContext(request))  
+    return render_to_response("download_list.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage, 'unitreadonly':unitreadonly},context_instance=RequestContext(request))  
 
 @login_required(login_url="/login/")
 def generate_downfiles(request):

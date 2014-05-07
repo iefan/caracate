@@ -42,6 +42,13 @@
   {% endfor %}
   </tr>
 </table>
+{% if unitreadonly == 1 %}
+<script type="text/javascript">
+    $('#id_unitname').attr('readonly', true);
+    $('#id_unitname').css({'background-color' : '#DFD8D1'});
+    $('#id_unitname').css({'color' : '#000000'});
+</script>
+{% endif %}
 {% endblock %}
 
 {% block otherbutton %}

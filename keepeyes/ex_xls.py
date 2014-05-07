@@ -33,7 +33,7 @@ def readxlsex2_tmp():
         sh = bk.sheets()[ish]
         # print(bk.sheets(), len(bk.sheets()), sh)
         nrows =  sh.nrows        
-        checkdate = datetime.date(2013, 5, 1) - datetime.timedelta(1)
+        checkdate = datetime.date(2014, 5, 1) - datetime.timedelta(1)
         for indx in range(5, nrows):
             #序号 姓名  性别  年龄  住址  联系电话    不适合手术原因 术前检查费（元）    基金补助金额（元）   ID
             #序号 姓名  性别  年龄  住址  联系电话    不适合手术原因 术前检查费（元）
