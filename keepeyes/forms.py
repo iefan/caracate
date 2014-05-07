@@ -188,26 +188,22 @@ class NotFitCcModifyForm(forms.ModelForm):
 
 class NotFitSelectCcForm(forms.ModelForm):
     '''不适合白内障手术查询条件表单'''
-    lstcounty = list(jzr.COUNTY_CHOICES)
-    lstcounty.insert(0, ("", "--"))
-    county = forms.ChoiceField(choices = tuple(lstcounty), label="区县名称",)
+    lstyears = [("", "--"), (2013,2013), (2014,2014)]
+    whichyears = forms.ChoiceField(choices = tuple(lstyears), label="年份")
     class Meta:
         model = NotfitOperationsModel
-        fields = ('name', 'county',)
+        fields = ('name', 'isapproval',)
 
     def clean(self):
         return self.cleaned_data
 
 class SelectCcForm(forms.ModelForm):
-    '''白内障手术查询条件表单'''
-    lstcounty = list(jzr.COUNTY_CHOICES)
-    lstcounty.insert(0, ("", "--"))
-    county = forms.ChoiceField(choices = tuple(lstcounty), label="区县名称",)
+    '''白内障手术查询条件表单'''    
     lstyears = [("", "--"), (2013,2013), (2014,2014)]
     whichyears = forms.ChoiceField(choices = tuple(lstyears), label="年份")
     class Meta:
         model = OperationsModel
-        fields = ('name', 'county',)
+        fields = ('name', 'isapproval')
 
     def clean(self):
         return self.cleaned_data

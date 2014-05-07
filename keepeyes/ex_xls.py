@@ -12,6 +12,83 @@ xlsfilename  = "D:\yk2013cc.xls"
 xlsfilename2  = "D:\yk2013notcc.xls"
 # xlsfilename  = "yk2013cc.xls"
 
+def readxlsex2_tmp():
+    strsql = "select name,sex,county,age,hospital,address,phone,\
+        moneytotal,moneyfund,reason,hospitalID,checkdate,operatorname,\
+        isapproval,approvaldate,approvalman from keepeyes_notfitoperationsmodel"
+    cur = conn.cursor()
+    # cur.execute(strsql)
+    # for r in cur:
+    #     print(r)
+
+    # return
+    COUNTY_CHOICES = ('金平区','龙湖区','濠江区','澄海区','潮阳区','潮南区','南澳县',)
+
+    sql1 = "insert into keepeyes_notfitoperationsmodel(name,sex,county,age,hospital,address,phone,\
+        reason,checkdate,moneytotal,operatorname) \
+         values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s)"
+    bk = xlrd.open_workbook(xlsfilename2)
+    # totalmoney = 0
+    for ish in list(range(0,1)):
+        sh = bk.sheets()[ish]
+        # print(bk.sheets(), len(bk.sheets()), sh)
+        nrows =  sh.nrows        
+        checkdate = datetime.date(2013, 5, 1) - datetime.timedelta(1)
+        for indx in range(5, nrows):
+            #序号 姓名  性别  年龄  住址  联系电话    不适合手术原因 术前检查费（元）    基金补助金额（元）   ID
+            #序号 姓名  性别  年龄  住址  联系电话    不适合手术原因 术前检查费（元）
+            name            = sh.row(indx)[1].value.strip()
+            name            = name.replace(' ', '').replace('　', '')
+            if name == "":
+                # total += indx
+                # print(indx, "===============================", sh.name, total, totalmoney)
+                break;
+            sex             = sh.row(indx)[2].value.strip()
+            try:
+                age             = int(sh.row(indx)[3].value)
+            except:
+                age = 60
+            address         = sh.row(indx)[4].value.strip()
+            county          = address[:3]
+            if type(sh.row(indx)[5].value) == type("a"):
+                phone = sh.row(indx)[5].value.split("/")[0]
+            else:
+                phone = str(int(sh.row(indx)[5].value))
+            reason          = sh.row(indx)[6].value.strip()
+            moneytotal      = 0.00
+
+            hospital        = "国际眼科中心"
+            
+            # if type(sh.row(indx)[11].value) == type("a"):
+            #     hospitalnumber = sh.row(indx)[11].value
+            # else:
+            #     hospitalnumber = str(int(sh.row(indx)[11].value))
+
+            operatorname    = "黄丹珊"
+            
+            # totalmoney += float(moneyfund)
+            # print(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,isapproval, approvaldate, approvalman)
+            
+            tmplstr =(name,sex,county,age,hospital,address,phone,\
+                    reason,checkdate,moneytotal,operatorname)
+            print('------------', name, county)
+            if county not in COUNTY_CHOICES:
+                print("EEEEEEEEEEEEEEEEEEEEEEEEE", county, sh.name, tmplstr)
+                break
+                
+            # try:
+            #     n = cur.execute(sql1,tmplstr)
+            #     conn.commit()
+            #     # print(sh.name, "OK")
+            # except:
+            #     print("Error", tmplstr, sh.name)
+            #     pass
+    # print(totalmoney)
+    cur.close()
+
+    #    print sh.ncols
+
+
 def readxlsex2():
     strsql = "select name,sex,county,age,hospital,address,phone,\
         moneytotal,moneyfund,reason,hospitalID,checkdate,operatorname,\
@@ -390,7 +467,8 @@ def readxlsex_tmp():
 
 if __name__ == '__main__':
     # readxlsex()
-    readxlsex2()
+    # readxlsex2()
+    readxlsex2_tmp()
     # readxlsex_tmp()
     # writexlsex()
     # writecsv()

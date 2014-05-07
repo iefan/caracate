@@ -21,7 +21,7 @@ def index(request):
     return render_to_response("index.html",context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
-def cc_select(request, curname="", curcounty="", curyears = ""):
+def cc_select(request, curid=""):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
@@ -34,13 +34,12 @@ def cc_select(request, curname="", curcounty="", curyears = ""):
         "手术费用", '基金补助', "是否软晶体", "家庭住址", "修改"]
     curpp     = []
 
-    # print(curname, curcounty, curyears, '----')
+    (curname, curyears, curisapproval) = ("", "", "")
     if curname == "":
         if request.method == 'POST':
-            curname     = request.POST['name'].strip()
-            curcounty   = request.POST['county']
-            curyears    = request.POST['whichyears']
-    # print(curname, curppid, curcounty, '----')
+            curname         = request.POST['name'].strip()
+            curisapproval   = request.POST['isapproval']
+            curyears        = request.POST['whichyears']
 
     #=====================new page=================
     try:
@@ -55,14 +54,10 @@ def cc_select(request, curname="", curcounty="", curyears = ""):
         get_select_str = "||"
 
     if get_select_str != "||":
-        (curname, curcounty, curyears) = get_select_str.split("|")
-    form = SelectCcForm(initial={'name':curname, 'county':curcounty, 'whichyears':curyears, }) #页面查询窗体
-    get_select_str = "|".join([curname, curcounty, str(curyears)])
-    if curyears != "":
-        curyears = int(curyears)
-    else:
-        curyears = 0 ######################################
-
+        (curname, curyears, curisapproval) = get_select_str.split("|")
+    form = SelectCcForm(initial={'name':curname, 'whichyears':curyears, 'isapproval':curisapproval}) #页面查询窗体
+    get_select_str = "|".join([curname, str(curyears), curisapproval])
+    
     if curPage < 1:
         curPage = 1
     #判断点击了【下一页】还是【上一页】
@@ -73,22 +68,19 @@ def cc_select(request, curname="", curcounty="", curyears = ""):
 
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
-    if curyears == 0:
-        cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty)[startPos:endPos]
+    if curyears == "":
+        cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval)[startPos:endPos]
     else:
-        cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=curyears, county__icontains=curcounty)[startPos:endPos]
-
-    # posts = BlogPost.objects.all()[startPos:endPos]
+        cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=int(curyears), isapproval__icontains=curisapproval)[startPos:endPos]
 
     if allPostCounts == "": #标记1
-        if curyears == 0:
-            allPostCounts = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty).count()
+        if curyears == "":
+            allPostCounts = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval).count()
         else:
-            allPostCounts = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=curyears, county__icontains=curcounty).count()
+            allPostCounts = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=int(curyears), isapproval__icontains=curisapproval).count()
     if allPostCounts == 0:
         curPage = 0
         allPage = 0
-    # allPostCounts = BlogPost.objects.count()
     allPage = int(allPostCounts / MYPAGES)
     if (allPostCounts % MYPAGES) > 0:
         allPage += 1
@@ -159,35 +151,42 @@ def cc_modify(request, curid="0"):
     return render_to_response('cc_applymodify.html', {"form":form, "nomodifyinfo":nomodifyinfo, "jscal_min":jscal_min, "jscal_max":jscal_max}, context_instance=RequestContext(request))
 
 @login_required(login_url="/login/")
-def notcc_select(request, curname="", curcounty=""):
+def notcc_select(request, curid=""):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
+    if request.user.unitgroup == 2:
+        curhospital = request.user.unitname #医院名称
+    else:
+        curhospital = "" #市残联
 
     curppname = ["姓名", "性别", "区县", "年龄", "联系电话", "不适合手术原因", "术前检查费", "基金补助",  "ID号", "月份", "住址", "修改"]
     curpp     = []
 
+    (curname, curyears, curisapproval) = ("", "", "")
     if curname == "":
         if request.method == 'POST':
-            curname = request.POST['name'].strip()
-            curcounty = request.POST['county']
+            curname         = request.POST['name'].strip()
+            curisapproval   = request.POST['isapproval']
+            curyears        = request.POST['whichyears']
 
     #=====================new page=================
     try:
         curPage = int(request.GET.get('curPage', '1'))
         allPostCounts = int(request.GET.get('allPostCounts',''))
         pageType = str(request.GET.get('pageType', ''))
-        get_select_str = str(request.GET.get("get_select_str", "|"))
+        get_select_str = str(request.GET.get("get_select_str", "||"))
     except ValueError:
         curPage = 1
         allPostCounts = ""
         pageType = ''
-        get_select_str = "|"
+        get_select_str = "||"
 
-    if get_select_str != "|":
-        (curname, curcounty) = get_select_str.split("|")
-    form = NotFitSelectCcForm(initial={'name':curname, 'county':curcounty,}) #页面查询窗体
-    get_select_str = "|".join([curname, curcounty])
+
+    if get_select_str != "||":
+        (curname, curyears, curisapproval) = get_select_str.split("|")
+    form = NotFitSelectCcForm(initial={'name':curname, 'whichyears':curyears, 'isapproval':curisapproval}) #页面查询窗体
+    get_select_str = "|".join([curname, str(curyears), curisapproval])
 
     if curPage < 1:
         curPage = 1
@@ -199,11 +198,20 @@ def notcc_select(request, curname="", curcounty=""):
 
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
-    cur_re = NotfitOperationsModel.objects.filter(name__icontains=curname, county__icontains=curcounty)[startPos:endPos]
+    if curyears == "":
+        cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval)[startPos:endPos]
+    else:
+        cur_re = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=int(curyears), isapproval__icontains=curisapproval)[startPos:endPos]
+
+    # cur_re = NotfitOperationsModel.objects.filter(name__icontains=curname, county__icontains=curcounty)[startPos:endPos]
     # posts = BlogPost.objects.all()[startPos:endPos]
 
     if allPostCounts == "": #标记1
-        allPostCounts = NotfitOperationsModel.objects.filter(name__icontains=curname, county__icontains=curcounty).count()
+        if curyears == "":
+            allPostCounts = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval).count()
+        else:
+            allPostCounts = NotfitOperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=int(curyears), isapproval__icontains=curisapproval).count()
+
     if allPostCounts == 0:
         curPage = 0
         allPage = 0
@@ -215,7 +223,7 @@ def notcc_select(request, curname="", curcounty=""):
     # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
     if len(cur_re) != 0:
         for ipp in cur_re:
-            if ipp.approvaldate:
+            if ipp.isapproval == "同意":
                 tmpid = ""
             else:
                 tmpid = ipp.id
