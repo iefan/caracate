@@ -41,7 +41,9 @@ urlpatterns = patterns('',
     url(r'^generate_downfiles/$', 'keepeyes.views.generate_downfiles'),
     url(r'^downfile_bnz/(.*)/$', 'keepeyes.views.downfile_bnz'),
     url(r'^cc_phone/$', 'keepeyes.views.cc_phone'),
+
     url(r'^gmx_list/$', 'keepeyes.views.gmx_list'),
+    url(r'^gmx_input/$', 'keepeyes.views.gmx_input'),
     # url(r'^refresh/(.*)/$', 'mental.views.refresh'),
 
     # url(r'^cc_modify/(\d+)/$', 'keepeyes.views.cc_modify'),

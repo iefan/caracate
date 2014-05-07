@@ -27,6 +27,7 @@ class InitUserPasswordForm(forms.Form):
         newpassword2 = self.cleaned_data['newpassword2']
         if newpassword2 != newpassword:
             raise forms.ValidationError("两次输入密码不正确!")
+        return newpassword2
 
 class ChangePasswordForm(forms.Form):
     '''更改密码视图'''
@@ -46,12 +47,14 @@ class ChangePasswordForm(forms.Form):
             raise forms.ValidationError("请输入原始密码!")
         if not authenticate(username=username, password=oldpassword):
             raise forms.ValidationError("原始密码不正确!")
+        return oldpassword
 
     def clean_newpassword2(self):
         newpassword = self.cleaned_data['newpassword']
         newpassword2 = self.cleaned_data['newpassword2']
         if newpassword2 != newpassword:
             raise forms.ValidationError("两次输入密码不正确!")
+        return newpassword2
 
 class CcInputForm(forms.ModelForm):
     isapproval = forms.CharField(widget=forms.HiddenInput())
@@ -161,6 +164,7 @@ class NotFitCcModifyForm(forms.ModelForm):
         if age:
             if not age.isdigit():
                 raise forms.ValidationError("年龄必须输入数字")
+        return age
 
     def clean_moneytotal(self):
         moneytotal = self.cleaned_data['moneytotal']
@@ -255,3 +259,19 @@ class GMX_Form(forms.ModelForm):
 
     def clean(self):
         return self.cleaned_data
+
+class GMX_input_Form(forms.ModelForm): 
+    unitname = forms.CharField(widget=forms.HiddenInput())    
+
+    class Meta:
+        model = GMXModel
+        fields = ("whichmonth" , "unitname", "checknums", "operatornums", "gmxnums", )
+
+    def clean(self):
+        return self.cleaned_data
+
+    def clean_whichmonth(self):
+        whichmonth = self.cleaned_data["whichmonth"]
+        if whichmonth == "":
+            raise forms.ValidationError("请输入月份")
+        return whichmonth

@@ -5,7 +5,7 @@ from keepeyes.models import OperationsModel, NotfitOperationsModel, DownloadFile
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from keepeyes.forms import SelectCcForm, CcInputForm, CcModifyForm, ChangePasswordForm
-from keepeyes.forms import NotFitSelectCcForm, NotFitCcInputForm, NotFitCcModifyForm, GMX_Form
+from keepeyes.forms import NotFitSelectCcForm, NotFitCcInputForm, NotFitCcModifyForm, GMX_Form, GMX_input_Form
 from keepeyes.forms import Approval_Cc_SelectForm, Approval_Cc_Form, DownLoadFile_Form, InitUserPasswordForm
 import datetime, os, base64
 import keepeyes.resources as jzr
@@ -108,8 +108,8 @@ def cc_input(request):
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
     thisday = datetime.date.today()
-    jscal_min = int((thisday - datetime.timedelta(60)).isoformat().replace('-', ''))
-    jscal_max = int((thisday + datetime.timedelta(30)).isoformat().replace('-', ''))
+    jscal_min = (datetime.date(thisday.year, 1, 1).isoformat().replace('-', ''))
+    jscal_max = int(thisday.isoformat().replace('-', ''))
 
     form = CcInputForm(initial={'operatorname':request.user.operatorname, 'hospital':request.user.unitname, 'isapproval':"待审"})
     if request.method == "POST":
@@ -135,9 +135,11 @@ def cc_modify(request, curid=""):
 
     nomodifyinfo = ["姓名：%s"  % curpp.name, "身份证号：%s" % curpp.ppid]
 
-    thisday   = datetime.date(curpp.operationtime.year, curpp.operationtime.month, 1)
-    jscal_min = int(thisday.isoformat().replace('-', ''))
-    jscal_max = int((thisday + datetime.timedelta(30)).isoformat().replace('-', ''))
+    # thisday   = datetime.date(curpp.operationtime.year, curpp.operationtime.month, 1)
+    thisday   = datetime.date.today()
+    jscal_min = (datetime.date(thisday.year, 1, 1).isoformat().replace('-', ''))
+    # jscal_min = int((thisday - datetime.timedelta(60)).isoformat().replace('-', ''))
+    jscal_max = int(thisday.isoformat().replace('-', ''))
 
     curpp.operatorname = request.user.operatorname
     curpp.hospital = request.user.unitname
@@ -241,10 +243,12 @@ def notcc_input(request):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
-    thisday   = datetime.date.today()
-    jscal_min = int((thisday - datetime.timedelta(60)).isoformat().replace('-', ''))
-    jscal_max = int((thisday + datetime.timedelta(30)).isoformat().replace('-', ''))
 
+    thisday = datetime.date.today()
+    jscal_min = (datetime.date(thisday.year, 1, 1).isoformat().replace('-', ''))
+    # jscal_min = int((thisday - datetime.timedelta(60)).isoformat().replace('-', ''))
+    jscal_max = int(thisday.isoformat().replace('-', ''))
+    
     form = NotFitCcInputForm(initial={'operatorname':request.user.operatorname, 'hospital':request.user.unitname, 'isapproval':"待审"})
     # print form
     # gameclass = request.session['gameclass']
@@ -378,15 +382,15 @@ def cc_approvalinput(request, curid=""):
 
     nomodifyinfo = ["姓名：%s"  % curpp.name, "手术费用：%s" % curpp.moneytotal, "医院名称：%s" % curpp.hospital, "手术时间：%s" % curpp.operationtime]
 
-    today   = datetime.date.today()
-    jscal_min = int((today - datetime.timedelta(30)).isoformat().replace('-', ''))
-    jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
+    thisday = datetime.date.today()
+    jscal_min = (datetime.date(thisday.year, 1, 1).isoformat().replace('-', ''))
+    jscal_max = int((thisday + datetime.timedelta(30)).isoformat().replace('-', ''))
 
     btnname = "修改"
     curpp.approvalman = request.user.operatorname
     if curpp.isapproval != "同意":
         btnname = "审核"
-        curpp.approvaldate = today
+        curpp.approvaldate = thisday
         curpp.isapproval = "同意"
     form = Approval_Cc_Form(instance=curpp)
     if request.method == "POST":
@@ -408,10 +412,10 @@ def cc_onekeyapproval(request):
     curhospital     = request.session['cc_hospital']
 
     today   = datetime.date.today()
-    OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, county__icontains=curcounty, \
+    OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, \
         isapproval__icontains=curisapproval).exclude(isapproval="同意").update(approvalman=request.user.operatorname, moneyfund=1400.00, isapproval="同意", approvaldate=today)
 
-    return cc_approvallist(request, curname, curcounty, curhospital)
+    return cc_approvallist(request, "")
 
 @login_required(login_url="/login/")
 def notfit_cc_approvallist(request, curid=""):
@@ -508,8 +512,8 @@ def notfit_cc_approvalinput(request, curid=""):
 
     nomodifyinfo = ["姓名：%s"  % curpp.name, "检查费用：%s" % curpp.moneytotal, "医院名称:%s" % curpp.hospital, "检查时间：%s" % curpp.checkdate]
 
-    today   = datetime.date.today()
-    jscal_min = int((today - datetime.timedelta(30)).isoformat().replace('-', ''))
+    today = datetime.date.today()
+    jscal_min = (datetime.date(today.year, 1, 1).isoformat().replace('-', ''))
     jscal_max = int((today + datetime.timedelta(30)).isoformat().replace('-', ''))
 
     btnname = "修改"
@@ -700,9 +704,13 @@ def cc_phone(request):
 @login_required(login_url="/login/")
 def gmx_list(request, curmonth=""):
     '''光明行视图'''
-    lstauth = [0,1]
+    lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
+    if int(request.user.unitgroup) == 2 or int(request.user.unitgroup) == 1:
+        unitname = request.user.unitname #单位名称
+    else:
+        unitname = ""
 
     curppname = ["月份", "单位", "当月筛查例数", "当月手术例数", "光明行下乡次数",]
     curpp     = []
@@ -738,11 +746,11 @@ def gmx_list(request, curmonth=""):
 
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
-    cur_re = GMXModel.objects.filter(whichmonth__icontains=curmonth)[startPos:endPos]
+    cur_re = GMXModel.objects.filter(whichmonth__icontains=curmonth, unitname__icontains=unitname)[startPos:endPos]
     # posts = BlogPost.objects.all()[startPos:endPos]
 
     if allPostCounts == "": #标记1
-        allPostCounts = GMXModel.objects.filter(whichmonth__icontains=curmonth).count()
+        allPostCounts = GMXModel.objects.filter(whichmonth__icontains=curmonth, unitname__icontains=unitname).count()
     if allPostCounts == 0:
         curPage = 0
         allPage = 0
@@ -757,3 +765,18 @@ def gmx_list(request, curmonth=""):
             curpp.append([ipp.whichmonth, ipp.unitname, ipp.checknums, ipp.operatornums, ipp.gmxnums])
     
     return render_to_response("gmx_list.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage, 'get_select_str':get_select_str},context_instance=RequestContext(request))  
+
+@login_required(login_url="/login/")
+def gmx_input(request):
+    lstauth = [0,2]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+    
+    form = GMX_input_Form(initial={'unitname':request.user.unitname})
+    if request.method == "POST":
+        form = GMX_input_Form(request.POST)
+        print(request.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect("/gmx_list/")
+    return render_to_response('gmx_input.html', {"form":form,}, context_instance=RequestContext(request))

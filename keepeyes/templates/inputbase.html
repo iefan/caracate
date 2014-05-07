@@ -19,7 +19,7 @@
         {% for hidden in form.hidden_fields %}
         {{ hidden }}
         {% endfor %}
-        <table align="center" class="pure-table  pure-table-horizontal gameordertable">
+        <table align="center" class="pure-table  pure-table-horizontal gameordertable applyinputselect">
           {% for field in form.visible_fields %}
             {% if forloop.counter0|divisibleby:2 %}
           <tr>

@@ -71,6 +71,9 @@
 .applyinputselect input[type="text"]{
     width: 100%;
 }
+.applyinputselect input[type="number"]{
+    width: 100%;
+}
 
 .logintitle{
     text-align: center;
