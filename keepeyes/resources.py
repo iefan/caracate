@@ -93,6 +93,78 @@ def writecsv(downloaddir):
     conn.close()
     return lstresult
 
+def write_notcc_csv(downloaddir):
+    import pymysql, csv, os, datetime
+    # downloaddir="downloadfiles/"
+    lstresult = []
+
+    conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl",db="kfbnz", use_unicode=1, charset='utf8')
+    cur = conn.cursor()
+    lstcounty = []
+    sqltmp = "select distinct(county) from keepeyes_notfitoperationsmodel"
+    cur.execute(sqltmp)
+    for icounty in cur:
+        lstcounty.append(icounty[0])
+
+    lsthospital = []
+    sqltmp = "select distinct(hospital) from keepeyes_notfitoperationsmodel"
+    cur.execute(sqltmp)
+    for ihospital in cur:
+        lsthospital.append(ihospital[0])
+    lstyear = []
+    
+    sqltmp = "select distinct(YEAR(checkdate)) from keepeyes_notfitoperationsmodel"
+    cur.execute(sqltmp)
+    for iyear in cur:
+        lstyear.append(iyear[0])
+
+    strsql = "select name,sex,county,age,hospital,address,phone,reason,hospitalID,checkdate,moneytotal,moneyfund \
+         from keepeyes_notfitoperationsmodel "
+    lsthead = ["姓名",  "性别", "区县", "年龄", "手术医院", "家庭住址", "联系电话", "不适合原因", "挂号ID", \
+        "检查日期","手术费用（元）","基金补助金额（元）"]
+
+    #医院按年份输出
+    today = datetime.date.today()
+    for ihospital in lsthospital:
+        for iyear in lstyear:
+            strsqltmp = strsql + " where YEAR(checkdate)=%s order by checkdate" % iyear
+            print(strsqltmp)
+            n = cur.execute(strsqltmp)
+            if n != 0:                
+                tmpcsvname = ihospital + "-不符合手术-" + str(iyear) + ".csv"
+                tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+                with open(tmpcsvname, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(lsthead)
+                    for r in cur:
+                        (name,sex,county,age,hospital,address,phone,reason,hospitalID,checkdate,moneytotal,moneyfund) = r[:12]
+                        if type(moneyfund) != type(0.0):
+                            moneyfund = 0.0
+                        writer.writerow((name,sex,county,str(age),hospital,address,str(phone),reason, hospitalID, str(checkdate),"%.2f" % moneytotal,"%.2f" % moneyfund))
+                lstresult.append([ihospital, iyear, tmpcsvname, today])
+
+    #区县按年份输出
+    for icounty in lstcounty:
+        for iyear in lstyear:
+            strsqltmp = strsql + " where YEAR(checkdate)=%s and county='%s'" % (iyear, icounty)
+            n = cur.execute(strsqltmp)
+            if n!= 0:
+                tmpcsvname = icounty + "-不符合手术-" + str(iyear) + ".csv"
+                tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+                with open(tmpcsvname, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(lsthead)
+                    for r in cur:
+                        (name,sex,county,age,hospital,address,phone,reason,hospitalID,checkdate,moneytotal,moneyfund) = r[:12]
+                        if type(moneyfund) != type(0.0):
+                            moneyfund = 0.0
+                        writer.writerow((name,sex,county,str(age),hospital,address,str(phone),reason, hospitalID, str(checkdate),"%.2f" % moneytotal,"%.2f" % moneyfund))
+                lstresult.append([icounty, iyear, tmpcsvname, today])
+
+    cur.close()
+    conn.close()
+    return lstresult
+
 # !!!===!!! MUST NEED ADD 'u' BEFORE IN UNICODE ! ===!!!
 UNITGROUP_CHOICES = (\
         ('0', '市残联'),

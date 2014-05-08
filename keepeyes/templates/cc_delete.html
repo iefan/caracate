@@ -1,17 +1,11 @@
 {% extends "selectbase.html" %}
-{% block title %}白内障人员信息查询{% endblock %}
+{% block title %}白内障人员信息删除确认{% endblock %}
 {% block admincssjs %}{% endblock %}
 
 {% block orderselect %}
-<form method="POST" action="/cc_select/" class="pure-form">
-  <fieldset align="center" class="mselect">
-    {{ form }}
-    <button type="submit" class="pure-button pure-button-success">查询</button>
-  </fieldset>
-</form>
 {% endblock %}
 
-{% block tabletitle %}白内障手术人员信息列表{% endblock %}
+{% block tabletitle %}删除白内障手术人员信息确认{% endblock %}
 {% block ordertable %}
 <div class="pure-u-4-5 " style="margin:5px 7.4% 10px 7.4%; overflow-x: auto; overflow-y: auto; height: 90%; width:85%;"> 
 <table table-layout="fixed" align="center" class="pure-table pure-table-bordered" width="120%" height="100%" id="SelectTable">
@@ -36,7 +30,7 @@
       {% endfor %}
     </tr>
   </thead>
-  {% for ipp, curid in curpp %}
+  {% for ipp in curpp %}
   <tr>
     <td>{{ forloop.counter|add:startPos}}</td>
     {% for item in ipp %}
@@ -46,15 +40,6 @@
     <td style="font-size:6px!important;">{{ item }}</td>
     {% endif %}
     {% endfor %}
-
-    {% if not curid %}
-    <td>已审核</td>
-    <td>&nbsp;</td>
-    {% else %}
-    <td style="font-size:6px!important;"><a class="pure-button " href="/cc_modify/{{ curid }}/">修改</a></td>
-    <td style="font-size:6px!important;"><a class="pure-button " href="/cc_delete/{{ curid }}/">删除</a></td>
-    {% endif %}
-    
   </tr>
   {% endfor %}
 </table>
@@ -62,5 +47,5 @@
 {% endblock %}
 
 {% block otherbutton %}
-<a class="pure-button pure-button-primary" style="margin-left: 30px;" href="/cc_input/">新增</a>
+<a class="pure-button pure-button-primary" style="margin-left: 30px;background: rgb(202, 60, 60);" href="/cc_delete_ok/{{ curid }}">删除该条信息</a>
 {% endblock %}

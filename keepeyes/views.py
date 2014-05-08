@@ -31,7 +31,7 @@ def cc_select(request, curid=""):
         curhospital = "" #市残联
 
     curppname = ["姓名", "性别", "区县", "身份证号", "手术时间", "术眼", "联系电话", \
-        "手术费用", '基金补助', "是否软晶体", "家庭住址", "修改"]
+        "手术费用", '基金补助', "是否软晶体", "家庭住址", "修改", "删除"]
     curpp     = []
 
     (curname, curyears, curisapproval) = ("", "", "")
@@ -103,6 +103,44 @@ def cc_select(request, curid=""):
     return render_to_response("cc_applylist.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage, "get_select_str":get_select_str,},context_instance=RequestContext(request))  
 
 @login_required(login_url="/login/")
+def cc_delete_ok(request, curid=""):
+    lstauth = [0,2]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+    if curid == "":
+        return HttpResponseRedirect('/cc_select/')
+
+    curpp = OperationsModel.objects.filter(id=curid, isapproval="待审")
+    if len(curpp) == 1:
+        curpp[0].delete()
+        return HttpResponseRedirect('/cc_select/')
+    else:
+        return HttpResponseRedirect('/cc_select/')
+
+
+@login_required(login_url="/login/")
+def cc_delete(request, curid=""):
+    lstauth = [0,2]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+    if curid == "":
+        return HttpResponseRedirect('/cc_select/')
+
+    ipp = OperationsModel.objects.filter(id=curid, isapproval="待审")
+    if len(ipp) == 1:
+        ipp = ipp[0]
+    else:
+        return HttpResponseRedirect('/cc_select/')
+
+    curppname = ["姓名", "性别", "区县", "身份证号", "手术时间", "术眼", "联系电话", \
+        "手术费用", '基金补助', "是否软晶体", "家庭住址"]
+    curpp = [[ipp.name, ipp.sex, ipp.county, ipp.ppid, ipp.operationtime, ipp.whicheye, \
+                 ipp.phone, ipp.moneytotal, ipp.moneyfund, ipp.softcrystal, ipp.address,]]
+
+    return render_to_response("cc_delete.html",{'curpp': curpp, 'curppname':curppname, "curid":ipp.id, "startPos":0, "allPostCounts":1,'allPage':0, 'curPage':0, "get_select_str":"",},context_instance=RequestContext(request))  
+
+
+@login_required(login_url="/login/")
 def cc_input(request):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
@@ -162,7 +200,8 @@ def notcc_select(request, curid=""):
     else:
         curhospital = "" #市残联
 
-    curppname = ["姓名", "性别", "区县", "年龄", "联系电话", "不适合手术原因", "术前检查费", "基金补助",  "ID号", "月份", "住址", "修改"]
+    curppname = ["姓名", "性别", "区县", "年龄", "联系电话", "不适合手术原因", "术前检查费", \
+        "基金补助",  "ID号", "月份", "住址", "修改", "删除"]
     curpp     = []
 
     (curname, curyears, curisapproval) = ("", "", "")
@@ -239,6 +278,44 @@ def notcc_select(request, curid=""):
     return render_to_response("notcc_applylist.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage, 'get_select_str':get_select_str},context_instance=RequestContext(request))  
 
 @login_required(login_url="/login/")
+def notcc_delete_ok(request, curid=""):
+    lstauth = [0,2]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+    if curid == "":
+        return HttpResponseRedirect('/notcc_select/')
+
+    curpp = NotfitOperationsModel.objects.filter(id=curid, isapproval="待审")
+    if len(curpp) == 1:
+        curpp[0].delete()
+        return HttpResponseRedirect('/notcc_select/')
+    else:
+        return HttpResponseRedirect('/notcc_select/')
+
+
+@login_required(login_url="/login/")
+def notcc_delete(request, curid=""):
+    lstauth = [0,2]
+    if int(request.user.unitgroup) not in lstauth:
+        return render_to_response('noauth.html')
+    if curid == "":
+        return HttpResponseRedirect('/notcc_select/')
+
+    ipp = NotfitOperationsModel.objects.filter(id=curid, isapproval="待审")
+    if len(ipp) == 1:
+        ipp = ipp[0]
+    else:
+        return HttpResponseRedirect('/notcc_select/')
+
+    curppname = ["姓名", "性别", "区县", "年龄", "联系电话", "不适合手术原因", \
+        "术前检查费", "基金补助",  "ID号", "月份", "住址"]
+
+    curpp = [[ipp.name, ipp.sex, ipp.county, ipp.age, ipp.phone, ipp.reason, \
+        ipp.moneytotal, ipp.moneyfund, ipp.hospitalID, ipp.checkdate, ipp.address,]]
+    
+    return render_to_response("notcc_delete.html",{'curpp': curpp, 'curppname':curppname, "curid":ipp.id, "startPos":0, "allPostCounts":1,'allPage':0, 'curPage':0, "get_select_str":"",},context_instance=RequestContext(request))  
+
+@login_required(login_url="/login/")
 def notcc_input(request):
     lstauth = [0,2]
     if int(request.user.unitgroup) not in lstauth:
@@ -246,12 +323,9 @@ def notcc_input(request):
 
     thisday = datetime.date.today()
     jscal_min = (datetime.date(thisday.year, 1, 1).isoformat().replace('-', ''))
-    # jscal_min = int((thisday - datetime.timedelta(60)).isoformat().replace('-', ''))
     jscal_max = int(thisday.isoformat().replace('-', ''))
     
     form = NotFitCcInputForm(initial={'operatorname':request.user.operatorname, 'hospital':request.user.unitname, 'isapproval':"待审"})
-    # print form
-    # gameclass = request.session['gameclass']
     if request.method == "POST":
         form = NotFitCcInputForm(request.POST)
         if form.is_valid():
@@ -631,7 +705,7 @@ def downloadfile_list(request, unitname="", datayears=""):
 
     startPos = (curPage-1) * MYPAGES
     endPos = startPos + MYPAGES
-    cur_re = DownloadFilesModel.objects.filter(unitname__icontains=unitname, datayears__icontains=datayears)[startPos:endPos]
+    cur_re = DownloadFilesModel.objects.filter(unitname__icontains=unitname, datayears__icontains=datayears).order_by("unitname", "-datayears")[startPos:endPos]
 
     if allPostCounts == "": #标记1
         allPostCounts = DownloadFilesModel.objects.filter(unitname__icontains=unitname, datayears__icontains=datayears).count()
@@ -659,8 +733,13 @@ def generate_downfiles(request):
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
 
-    lstresult = jzr.writecsv(BASE_DIR)
     DownloadFilesModel.objects.all().delete()
+
+    lstresult = jzr.writecsv(BASE_DIR)
+    for item in lstresult:
+        tmpresult = DownloadFilesModel(unitname=item[0], datayears=str(item[1]), filename=item[2], updatetime=item[3])
+        tmpresult.save()
+    lstresult = jzr.write_notcc_csv(BASE_DIR)
     for item in lstresult:
         tmpresult = DownloadFilesModel(unitname=item[0], datayears=str(item[1]), filename=item[2], updatetime=item[3])
         tmpresult.save()

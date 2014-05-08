@@ -50,8 +50,10 @@
 
     {% if not curid %}
     <td>已审核</td>
+    <td>&nbsp;</td>
     {% else %}
     <td><a class="pure-button " href="/notcc_modify/{{ curid }}/">修改</a></td>
+    <td><a class="pure-button " href="/notcc_delete/{{ curid }}/">删除</a></td>
     {% endif %}
     
   </tr>
