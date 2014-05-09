@@ -747,27 +747,27 @@ def generate_downfiles(request):
         tmpresult.save()
     return HttpResponseRedirect("/downloadfile_list/")
 
-@login_required(login_url="/login/")
-def downfile_bnz(request, downfilename = ""):
-    lstauth = [0,]
-    if int(request.user.unitgroup) not in lstauth:
-        return render_to_response('noauth.html')
+# @login_required(login_url="/login/")
+# def downfile_bnz(request, downfilename = ""):
+#     lstauth = [0,]
+#     if int(request.user.unitgroup) not in lstauth:
+#         return render_to_response('noauth.html')
 
-    if downfilename == "":
-        return HttpResponseRedirect("/downloadfile_list/")
+#     if downfilename == "":
+#         return HttpResponseRedirect("/downloadfile_list/")
 
-    downfilename = downfilename.encode()
-    downfilename = base64.decodebytes(downfilename)
-    downfilename = downfilename.decode()
-    # print(downfilename, os.path.basename(downfilename))
+#     downfilename = downfilename.encode()
+#     downfilename = base64.decodebytes(downfilename)
+#     downfilename = downfilename.decode()
+#     # print(downfilename, os.path.basename(downfilename))
 
-    f = open(downfilename)
-    data = f.read()
-    f.close()
+#     f = open(downfilename)
+#     data = f.read()
+#     f.close()
 
-    response = HttpResponse(data,  content_type='application/x-download')
-    response['Content-Disposition'] = 'attachment; filename=%s' % urlquote(os.path.basename(downfilename))
-    return response  
+#     response = HttpResponse(data,  content_type='application/x-download')
+#     response['Content-Disposition'] = 'attachment; filename=%s' % urlquote(os.path.basename(downfilename))
+#     return response  
 
 def cc_phone(request):
     curppname = ["单位名称", "姓名", "电话", "邮箱"]

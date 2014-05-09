@@ -74,6 +74,16 @@ class CcInputForm(forms.ModelForm):
     def clean(self):
         return self.cleaned_data
 
+    def clean_operationtime(self):
+        name            = self.cleaned_data['name']
+        ppid            = self.cleaned_data['ppid']
+        operationtime   = self.cleaned_data['operationtime']
+        try:
+            OperationsModel.objects.get(name= name, ppid=ppid, operationtime=operationtime)
+            raise forms.ValidationError("此时间手术的该人员已经添加！")
+        except OperationsModel.DoesNotExist:
+            return operationtime
+
     def clean_county(self):
         county = self.cleaned_data['county']
         if county == 0:
@@ -127,11 +137,21 @@ class NotFitCcInputForm(forms.ModelForm):
 
     class Meta:
         model = NotfitOperationsModel
-        fields = ('name','sex','county','age','address','phone','checkdate',\
+        fields = ('name','sex','county','checkdate','age','address','phone',\
             'moneytotal',  'reason','hospitalID','operatorname','isapproval')
 
     def clean(self):
         return self.cleaned_data
+
+    def clean_checkdate(self):
+        name            = self.cleaned_data['name']
+        county            = self.cleaned_data['county']
+        checkdate      = self.cleaned_data['checkdate']
+        try:
+            NotfitOperationsModel.objects.get(name= name, county=county, checkdate=checkdate)
+            raise forms.ValidationError("此时间手术的该人员已经添加！")
+        except NotfitOperationsModel.DoesNotExist:
+            return checkdate
 
     def clean_age(self):
         age = self.cleaned_data['age']
@@ -146,11 +166,11 @@ class NotFitCcInputForm(forms.ModelForm):
             raise forms.ValidationError("请录入手术费用")
         return moneytotal
 
-    def clean_phone(self):
-        phone  = self.cleaned_data['phone']
-        if not phone.isdigit() or len(phone)<11 or len(phone) > 12:
-            raise forms.ValidationError("请输入11或12位电话号码")
-        return phone
+    # def clean_phone(self):
+    #     phone  = self.cleaned_data['phone']
+    #     if not phone.isdigit() or len(phone)<11 or len(phone) > 12:
+    #         raise forms.ValidationError("请输入11或12位电话号码")
+    #     return phone
 
 class NotFitCcModifyForm(forms.ModelForm):
     class Meta:
