@@ -720,10 +720,12 @@ def downloadfile_list(request, unitname="", datayears=""):
     # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
     if len(cur_re) != 0:
         for ipp in cur_re:
-            downfilename = ipp.filename.encode()
-            downfilename = base64.encodebytes(downfilename)
-            downfilename = downfilename.decode()
-            curpp.append([[ipp.unitname, ipp.datayears,  ipp.updatetime, os.path.basename(ipp.filename),], downfilename])
+            downfilename = os.path.basename(ipp.filename)
+            # print(downfilename, "---", ipp.filename)
+            # downfilename = ipp.filename.encode()
+            # downfilename = base64.encodebytes(downfilename)
+            # downfilename = downfilename.decode()
+            curpp.append([[ipp.unitname, ipp.datayears,  ipp.updatetime, downfilename,], downfilename])
     
     return render_to_response("download_list.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage, 'unitreadonly':unitreadonly},context_instance=RequestContext(request))  
 

@@ -60,7 +60,7 @@ def writecsv(downloaddir):
             n = cur.execute(strsqltmp)
             if n != 0:                
                 tmpcsvname = ihospital + "-已做手术-" + str(iyear) + ".csv"
-                tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+                tmpcsvname = os.path.join(downloaddir, 'static', 'downloadfiles', tmpcsvname)
                 with open(tmpcsvname, 'w', newline='') as f:
                     writer = csv.writer(f)
                     writer.writerow(lsthead)
@@ -78,7 +78,7 @@ def writecsv(downloaddir):
             n = cur.execute(strsqltmp)
             if n!= 0:
                 tmpcsvname = icounty + "-已做手术-" + str(iyear) + ".csv"
-                tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+                tmpcsvname = os.path.join(downloaddir, 'static', 'downloadfiles', tmpcsvname)
                 with open(tmpcsvname, 'w', newline='') as f:
                     writer = csv.writer(f)
                     writer.writerow(lsthead)
@@ -132,7 +132,7 @@ def write_notcc_csv(downloaddir):
             n = cur.execute(strsqltmp)
             if n != 0:                
                 tmpcsvname = ihospital + "-不符合手术-" + str(iyear) + ".csv"
-                tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+                tmpcsvname = os.path.join(downloaddir, 'static', 'downloadfiles', tmpcsvname)
                 with open(tmpcsvname, 'w', newline='') as f:
                     writer = csv.writer(f)
                     writer.writerow(lsthead)
@@ -150,7 +150,7 @@ def write_notcc_csv(downloaddir):
             n = cur.execute(strsqltmp)
             if n!= 0:
                 tmpcsvname = icounty + "-不符合手术-" + str(iyear) + ".csv"
-                tmpcsvname = os.path.join(downloaddir, 'keepeyes', 'downloadfiles', tmpcsvname)
+                tmpcsvname = os.path.join(downloaddir, 'static', 'downloadfiles', tmpcsvname)
                 with open(tmpcsvname, 'w', newline='') as f:
                     writer = csv.writer(f)
                     writer.writerow(lsthead)
