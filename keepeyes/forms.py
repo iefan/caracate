@@ -57,8 +57,8 @@ class ChangePasswordForm(forms.Form):
         return newpassword2
 
 class CcInputForm(forms.ModelForm):
-    isapproval = forms.CharField(widget=forms.HiddenInput())
-    operationtime   = forms.CharField(error_messages={'required':u'日期不能为空'}, label='手术时间', \
+    isapproval     = forms.CharField(widget=forms.HiddenInput())
+    operationtime  = forms.CharField(error_messages={'required':u'日期不能为空'}, label='手术时间', \
         widget= forms.TextInput())
 
     lstcounty = list(jzr.COUNTY_CHOICES)
@@ -75,6 +75,10 @@ class CcInputForm(forms.ModelForm):
         return self.cleaned_data
 
     def clean_operationtime(self):
+        if 'name' not in self.cleaned_data:
+            raise forms.ValidationError("请先填写姓名！")
+        if 'ppid' not in self.cleaned_data:
+            raise forms.ValidationError("请先填写身份证号！")
         name            = self.cleaned_data['name']
         ppid            = self.cleaned_data['ppid']
         operationtime   = self.cleaned_data['operationtime']
@@ -144,6 +148,10 @@ class NotFitCcInputForm(forms.ModelForm):
         return self.cleaned_data
 
     def clean_checkdate(self):
+        if 'name' not in self.cleaned_data:
+            raise forms.ValidationError("请先填写姓名！")
+        if 'county' not in self.cleaned_data:
+            raise forms.ValidationError("请先填写所属区县！")
         name            = self.cleaned_data['name']
         county            = self.cleaned_data['county']
         checkdate      = self.cleaned_data['checkdate']
