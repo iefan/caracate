@@ -39,8 +39,8 @@ def writecsv(downloaddir):
     cur.execute(sqltmp)
     for ihospital in cur:
         lsthospital.append(ihospital[0])
+        
     lstyear = []
-    
     sqltmp = "select distinct(YEAR(operationtime)) from keepeyes_operationsmodel"
     cur.execute(sqltmp)
     for iyear in cur:
