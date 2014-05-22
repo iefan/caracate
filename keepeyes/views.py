@@ -46,6 +46,8 @@ def cc_select(request, curid=""):
         curisapproval   = modifypp.isapproval
         curyears        = modifypp.operationtime.year
 
+    # print(curname, curyears, curisapproval)
+
     #=====================new page=================
     try:
         curPage = int(request.GET.get('curPage', '1'))
@@ -90,7 +92,7 @@ def cc_select(request, curid=""):
     if (allPostCounts % MYPAGES) > 0:
         allPage += 1
 
-    # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
+    # print(allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++")
     if len(cur_re) != 0:
         for ipp in cur_re:
             if ipp.isapproval == "同意":
@@ -856,7 +858,7 @@ def gmx_input(request):
     form = GMX_input_Form(initial={'unitname':request.user.unitname})
     if request.method == "POST":
         form = GMX_input_Form(request.POST)
-        print(request.POST)
+        # print(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect("/gmx_list/")

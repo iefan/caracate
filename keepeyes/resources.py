@@ -26,7 +26,7 @@ def writecsv(downloaddir):
     # downloaddir="downloadfiles/"
     lstresult = []
 
-    conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl",db="kfbnz", use_unicode=1, charset='utf8')
+    conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl789456",db="kfbnz", use_unicode=1, charset='utf8')
     cur = conn.cursor()
     lstcounty = []
     sqltmp = "select distinct(county) from keepeyes_operationsmodel"
@@ -98,7 +98,7 @@ def write_notcc_csv(downloaddir):
     # downloaddir="downloadfiles/"
     lstresult = []
 
-    conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl",db="kfbnz", use_unicode=1, charset='utf8')
+    conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl789456",db="kfbnz", use_unicode=1, charset='utf8')
     cur = conn.cursor()
     lstcounty = []
     sqltmp = "select distinct(county) from keepeyes_notfitoperationsmodel"

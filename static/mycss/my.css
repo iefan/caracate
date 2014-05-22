@@ -3,6 +3,9 @@
     font-family: 宋体,Arial,Helvetica,sans-serif;
   	font-weight:bold;
 }
+.mselect{
+    font-size: 16px!important;
+}
 .orderscene{
     font-size: 30px;
 }
@@ -56,7 +59,7 @@
     text-aligh:center;
 }
 .errorlist{
-    font-size:8px;
+    font-size:10px;
     color:red;
     margin:0 0 -8px;
     padding:0;
@@ -112,7 +115,7 @@
     text-align: left;
     padding-top: 5px;
     padding-bottom: 5px;
-    font-size: 12px;
+    font-size: 14px;
 }
 #allpages{
     padding-left:10px;
@@ -145,7 +148,7 @@
 }
 #tablenum{
     text-align: center;
-    font-size: 10px;
+    font-size: 12px;
     margin:0;
     padding: 0;
     font-weight: lighter!important;
@@ -184,7 +187,7 @@
 #user_nav{
     text-align: right;
     margin:5px 10px auto;
-    font-size: 10px;
+    font-size: 14px;
 }
 /*nav menu css*/
 body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td{margin:0; padding:0}
