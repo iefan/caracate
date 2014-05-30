@@ -50,7 +50,7 @@ def writecsv(downloaddir):
     strsql = "select name,sex,county,ppid,operationtime,hospital,whicheye,address, \
         phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
         isapproval,approvaldate,approvalman from keepeyes_operationsmodel "
-    lsthead = ["姓名",  "性别", "身份证号", "手术时间", "手术医院", "术眼", "家庭住址", "联系电话", "手术费用（元）","基金补助金额（元）",  "住院号", "是否使用软晶体"]
+    lsthead = ["姓名",  "性别", "区县","身份证号", "手术时间", "手术医院", "术眼", "家庭住址", "联系电话", "手术费用（元）","基金补助金额（元）",  "住院号", "是否使用软晶体"]
 
     #医院按年份输出
     today = datetime.date.today()
