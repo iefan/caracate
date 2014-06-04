@@ -7,7 +7,7 @@ import xlrd, datetime, xlwt
 import csv
 # from tempfile import TemporaryFile
 
-conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl",db="kfbnz", use_unicode=1, charset='utf8')
+conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl789456",db="kfbnz", use_unicode=1, charset='utf8')
 xlsfilename  = "D:\yk2013cc.xls"
 xlsfilename2  = "D:\yk2013notcc.xls"
 # xlsfilename  = "yk2013cc.xls"
@@ -363,7 +363,7 @@ def writecsv():
 
 
 def readxlsex_tmp():
-    xlsfilename_04  = "D:\yk201404cc.xls"
+    xlsfilename_04  = r"D:\我的文档\Tencent Files\165222664\FileRecv\3月\免费手术统计汇总表（3月）.xls"
     strsql = "select name,sex,county,ppid,operationtime,hospital,whicheye,address, \
     phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
     isapproval,approvaldate,approvalman from keepeyes_operationsmodel"
@@ -381,8 +381,8 @@ def readxlsex_tmp():
     #     phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
     #     isapproval,approvaldate,approvalman) values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s, %s, %s, %s, %s)"
     sql1 = "insert into keepeyes_operationsmodel(name,sex,county,ppid,operationtime,hospital,whicheye,address, \
-        phone,moneytotal,hospitalnumber,softcrystal,operatorname) \
-        values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s)"
+        phone,moneytotal,hospitalnumber,softcrystal,operatorname, isapproval) \
+        values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s, %s)"
     bk = xlrd.open_workbook(xlsfilename_04)
     totalmoney = 0
     for ish in list(range(0,1)):
@@ -428,7 +428,7 @@ def readxlsex_tmp():
             # print(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,isapproval, approvaldate, approvalman)
             
             # tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,operatorname,isapproval, approvaldate, approvalman)
-            tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,hospitalnumber, softcrystal,operatorname)
+            tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,hospitalnumber, softcrystal,operatorname, isapproval)
             if county not in COUNTY_CHOICES:
                 print("EEEEEEEEEEEEEEEEEEEEEEEEE", county, sh.name, tmplstr)
                 break
@@ -571,7 +571,7 @@ if __name__ == '__main__':
     # readxlsex()
     # readxlsex2()
     # readxlsex2_tmp()
-    # readxlsex_tmp()
+    readxlsex_tmp()
     # writexlsex()
-    writeXls_CC("D:/tmp")
+    # writeXls_CC("D:/tmp")
     # writecsv()

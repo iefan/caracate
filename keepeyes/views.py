@@ -80,6 +80,7 @@ def cc_select(request, curid=""):
     else:
         cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__year=int(curyears), isapproval__icontains=curisapproval).order_by('-operationtime')[startPos:endPos]
 
+    # print(OperationsModel.objects.filter(hospital__icontains=curhospital, isapproval__icontains=curisapproval, operationtime__year=2014).count(), curyears, curhospital, curisapproval)
     if allPostCounts == "": #标记1
         if curyears == "":
             allPostCounts = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, isapproval__icontains=curisapproval).count()
@@ -95,6 +96,7 @@ def cc_select(request, curid=""):
     # print(allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++")
     if len(cur_re) != 0:
         for ipp in cur_re:
+            # print(ipp.name, ipp.sex, ipp.county, ipp.operationtime)
             if ipp.isapproval == "同意":
                 tmpid = ""
             else:
