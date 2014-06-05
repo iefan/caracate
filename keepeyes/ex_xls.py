@@ -7,15 +7,20 @@ import xlrd, datetime, xlwt
 import csv
 # from tempfile import TemporaryFile
 
+# conn=pymysql.connect(host="218.16.248.155", user="root",passwd="stcl789456",db="kfbnz", use_unicode=1, charset='utf8')
 conn=pymysql.connect(host="127.0.0.1", user="root",passwd="stcl789456",db="kfbnz", use_unicode=1, charset='utf8')
 xlsfilename  = "D:\yk2013cc.xls"
 xlsfilename2  = "D:\yk2013notcc.xls"
 # xlsfilename  = "yk2013cc.xls"
 
 def readxlsex2_tmp():
+    xlsfilename_04  = r"D:\我的文档\Tencent Files\165222664\FileRecv\1月\1月不适合手术患者名单（上报）.xls"
     strsql = "select name,sex,county,age,hospital,address,phone,\
         moneytotal,moneyfund,reason,hospitalID,checkdate,operatorname,\
         isapproval,approvaldate,approvalman from keepeyes_notfitoperationsmodel"
+
+    thisyear = 2
+
     cur = conn.cursor()
     # cur.execute(strsql)
     # for r in cur:
@@ -25,21 +30,19 @@ def readxlsex2_tmp():
     COUNTY_CHOICES = ('金平区','龙湖区','濠江区','澄海区','潮阳区','潮南区','南澳县',)
 
     sql1 = "insert into keepeyes_notfitoperationsmodel(name,sex,county,age,hospital,address,phone,\
-        reason,checkdate,moneytotal,operatorname) \
-         values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s)"
-    bk = xlrd.open_workbook(xlsfilename2)
-    # totalmoney = 0
+        reason,checkdate,moneytotal,operatorname, isapproval) \
+         values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s)"
+    bk = xlrd.open_workbook(xlsfilename_04)
+    totalmoney = 0
     for ish in list(range(0,1)):
         sh = bk.sheets()[ish]
         # print(bk.sheets(), len(bk.sheets()), sh)
         nrows =  sh.nrows        
-        checkdate = datetime.date(2014, 5, 1) - datetime.timedelta(1)
+        checkdate = datetime.date(2014, thisyear, 1) - datetime.timedelta(1)
         for indx in range(5, nrows):
-            #序号 姓名  性别  年龄  住址  联系电话    不适合手术原因 术前检查费（元）    基金补助金额（元）   ID
-            #序号 姓名  性别  年龄  住址  联系电话    不适合手术原因 术前检查费（元）
             name            = sh.row(indx)[1].value.strip()
             name            = name.replace(' ', '').replace('　', '')
-            if name == "":
+            if sh.row(indx)[0].value == "" or sh.row(indx)[0].value == "合计":
                 # total += indx
                 # print(indx, "===============================", sh.name, total, totalmoney)
                 break;
@@ -55,7 +58,11 @@ def readxlsex2_tmp():
             else:
                 phone = str(int(sh.row(indx)[5].value))
             reason          = sh.row(indx)[6].value.strip()
-            moneytotal      = 0.00
+            try:
+                moneytotal      = "%.2f" % float(sh.row(indx)[7].value)
+            except:
+                moneytotal = 0.00
+                # print('==============', name, sh.row(indx)[7].value)
 
             hospital        = "国际眼科中心"
             
@@ -65,12 +72,13 @@ def readxlsex2_tmp():
             #     hospitalnumber = str(int(sh.row(indx)[11].value))
 
             operatorname    = "黄丹珊"
+            isapproval      = "待审"
             
-            # totalmoney += float(moneyfund)
+            totalmoney += float(moneytotal)
             # print(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,isapproval, approvaldate, approvalman)
             
             tmplstr =(name,sex,county,age,hospital,address,phone,\
-                    reason,checkdate,moneytotal,operatorname)
+                    reason,checkdate,moneytotal,operatorname, isapproval)
             print('------------', name, county)
             if county not in COUNTY_CHOICES:
                 print("EEEEEEEEEEEEEEEEEEEEEEEEE", county, sh.name, tmplstr)
@@ -83,7 +91,7 @@ def readxlsex2_tmp():
             # except:
             #     print("Error", tmplstr, sh.name)
             #     pass
-    # print(totalmoney)
+    print(totalmoney)
     cur.close()
 
     #    print sh.ncols
@@ -363,7 +371,7 @@ def writecsv():
 
 
 def readxlsex_tmp():
-    xlsfilename_04  = r"D:\我的文档\Tencent Files\165222664\FileRecv\3月\免费手术统计汇总表（3月）.xls"
+    xlsfilename_04  = r"D:\我的文档\Tencent Files\165222664\FileRecv\5月\免费手术统计汇总表（5月）.xls"
     strsql = "select name,sex,county,ppid,operationtime,hospital,whicheye,address, \
     phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
     isapproval,approvaldate,approvalman from keepeyes_operationsmodel"
@@ -435,7 +443,6 @@ def readxlsex_tmp():
 
 
             # print(tmplstr)
-            # n = cur.execute(sql1,tmplstr)
             # try:
             #     # print("========", sql1)
             #     n = cur.execute(sql1,tmplstr)

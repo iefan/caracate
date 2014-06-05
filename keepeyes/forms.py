@@ -214,6 +214,9 @@ class NotFitSelectCcForm(forms.ModelForm):
     '''不适合白内障手术查询条件表单'''
     lstyears = [("", "--"), (2013,2013), (2014,2014)]
     whichyears = forms.ChoiceField(choices = tuple(lstyears), label="年份")
+    lstmonth = [(i,i) for i in list(range(1,13))]
+    lstmonth.insert(0, ("", "--"))
+    whichmonth = forms.ChoiceField(choices = tuple(lstmonth), label="月份")
     class Meta:
         model = NotfitOperationsModel
         fields = ('name', 'isapproval',)
@@ -225,6 +228,9 @@ class SelectCcForm(forms.ModelForm):
     '''白内障手术查询条件表单'''    
     lstyears = [("", "--"), (2013,2013), (2014,2014)]
     whichyears = forms.ChoiceField(choices = tuple(lstyears), label="年份")
+    lstmonth = [(i,i) for i in list(range(1,13))]
+    lstmonth.insert(0, ("", "--"))
+    whichmonth = forms.ChoiceField(choices = tuple(lstmonth), label="月份")
     class Meta:
         model = OperationsModel
         fields = ('name', 'isapproval')
