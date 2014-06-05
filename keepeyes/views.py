@@ -104,6 +104,7 @@ def cc_select(request, curid=""):
 
     # print(curyears)
     (startdate, enddate) = calcyearmonth(curyears, curmonth)
+    # print(curhospital, curname, "------")
 
     cur_re = OperationsModel.objects.filter(hospital__icontains=curhospital, name__icontains=curname, operationtime__range=(startdate, enddate), isapproval__icontains=curisapproval).order_by('-operationtime')[startPos:endPos]
 
@@ -178,11 +179,17 @@ def cc_input(request):
     jscal_min = (datetime.date(thisday.year, 1, 1).isoformat().replace('-', ''))
     jscal_max = int(thisday.isoformat().replace('-', ''))
 
-    form = CcInputForm(initial={'operatorname':request.user.operatorname, 'hospital':request.user.unitname, 'isapproval':"待审"})
+    form = CcInputForm(initial={'operatorname':request.user.operatorname, 'isapproval':"待审"})
     if request.method == "POST":
         form = CcInputForm(request.POST)
+        # print(form)
+        # print(request.user.unitname)
         if form.is_valid():
-            savepp = form.save()
+            savepp = form.save(commit=False)
+            savepp.hospital = request.user.unitname
+            savepp.save()
+            form.save_m2m()
+            # print(savepp)
             return cc_select(request, savepp.id)
     return render_to_response('cc_applyinput.html', {"form":form,"jscal_min":jscal_min, "jscal_max":jscal_max}, context_instance=RequestContext(request))
 
@@ -357,11 +364,14 @@ def notcc_input(request):
     jscal_min = (datetime.date(thisday.year, 1, 1).isoformat().replace('-', ''))
     jscal_max = int(thisday.isoformat().replace('-', ''))
     
-    form = NotFitCcInputForm(initial={'operatorname':request.user.operatorname, 'hospital':request.user.unitname, 'isapproval':"待审"})
+    form = NotFitCcInputForm(initial={'operatorname':request.user.operatorname, 'isapproval':"待审"})
     if request.method == "POST":
         form = NotFitCcInputForm(request.POST)
         if form.is_valid():
-            savepp = form.save()
+            savepp = form.save(commit=False)
+            savepp.hospital = request.user.unitname
+            savepp.save()
+            form.save_m2m()
             return notcc_select(request, savepp.id)
     return render_to_response('notcc_applyinput.html', {"form":form,"jscal_min":jscal_min, "jscal_max":jscal_max}, context_instance=RequestContext(request))
 

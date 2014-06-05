@@ -58,6 +58,7 @@ class ChangePasswordForm(forms.Form):
 
 class CcInputForm(forms.ModelForm):
     isapproval     = forms.CharField(widget=forms.HiddenInput())
+
     operationtime  = forms.CharField(error_messages={'required':u'日期不能为空'}, label='手术时间', \
         widget= forms.TextInput())
 
