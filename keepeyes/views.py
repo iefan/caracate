@@ -884,8 +884,13 @@ def gmx_list(request, curmonth=""):
 
     # print allPostCounts, "-----------", allPage, curPage, "+++++++++++++++++++++++++"
     if len(cur_re) != 0:
+        (tmpchecknums, tmpoperatornums, tmpgmxnums) = (0, 0, 0)
         for ipp in cur_re:            
             curpp.append([ipp.whichmonth, ipp.unitname, ipp.checknums, ipp.operatornums, ipp.gmxnums])
+            tmpchecknums    += int(ipp.checknums or 0)
+            tmpoperatornums += int(ipp.operatornums or 0)
+            tmpgmxnums      += int(ipp.gmxnums or 0)
+        curpp.append(["", "合计", tmpchecknums, tmpoperatornums, tmpgmxnums])
     
     return render_to_response("gmx_list.html",{"form":form, 'curpp': curpp, 'curppname':curppname, "startPos":startPos, "allPostCounts":allPostCounts,'allPage':allPage, 'curPage':curPage, 'get_select_str':get_select_str},context_instance=RequestContext(request))  
 
