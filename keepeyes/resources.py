@@ -54,10 +54,13 @@ def writecsv(downloaddir):
 
     #医院按年份输出
     today = datetime.date.today()
+    # print(lsthospital, lstyear)
     for ihospital in lsthospital:
         for iyear in lstyear:
-            strsqltmp = strsql + " where YEAR(operationtime)=%s order by operationtime" % iyear
+            strsqltmp = strsql + " where YEAR(operationtime)=%s and hospital='%s' order by operationtime" % (iyear, ihospital)
+            # print(strsqltmp)
             n = cur.execute(strsqltmp)
+            # print(strsqltmp, n)
             if n != 0:                
                 tmpcsvname = ihospital + "-已做手术-" + str(iyear) + ".csv"
                 tmpcsvname = os.path.join(downloaddir, 'static', 'downloadfiles', tmpcsvname)
@@ -127,8 +130,8 @@ def write_notcc_csv(downloaddir):
     today = datetime.date.today()
     for ihospital in lsthospital:
         for iyear in lstyear:
-            strsqltmp = strsql + " where YEAR(checkdate)=%s order by checkdate" % iyear
-            print(strsqltmp)
+            strsqltmp = strsql + " where YEAR(checkdate)=%s and hospital='%s'  order by checkdate" % (iyear, ihospital)
+            # print(strsqltmp)
             n = cur.execute(strsqltmp)
             if n != 0:                
                 tmpcsvname = ihospital + "-不符合手术-" + str(iyear) + ".csv"
