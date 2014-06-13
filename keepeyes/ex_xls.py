@@ -371,7 +371,8 @@ def writecsv():
 
 
 def readxlsex_tmp():
-    xlsfilename_04  = r"D:\名单\2013\民生医院\上半年白内障患者免费手术统计汇总表(民生医院).xls"
+    strmonthhos = 12
+    xlsfilename_04  = r"D:\名单\2012\眼科中心2012下半年\%s月\免费手术统计汇总表（%s月）.xls" %(strmonthhos, strmonthhos)
     # xlsfilename_04  = r"D:\我的文档\Tencent Files\165222664\FileRecv\5月\免费手术统计汇总表（5月）.xls"
     strsql = "select name,sex,county,ppid,operationtime,hospital,whicheye,address, \
     phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
@@ -386,12 +387,12 @@ def readxlsex_tmp():
     # return
     COUNTY_CHOICES = ('金平区','龙湖区','濠江区','澄海区','潮阳区','潮南区','南澳县',)
 
-    # sql1 = "insert into keepeyes_operationsmodel(name,sex,county,ppid,operationtime,hospital,whicheye,address, \
-    #     phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
-    #     isapproval,approvaldate,approvalman) values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s, %s, %s, %s, %s)"
     sql1 = "insert into keepeyes_operationsmodel(name,sex,county,ppid,operationtime,hospital,whicheye,address, \
-        phone,moneytotal,hospitalnumber,softcrystal,operatorname, isapproval) \
-        values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s, %s)"
+        phone,moneytotal,moneyfund,hospitalnumber,softcrystal,operatorname, \
+        isapproval,approvaldate,approvalman) values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s, %s, %s, %s, %s)"
+    # sql1 = "insert into keepeyes_operationsmodel(name,sex,county,ppid,operationtime,hospital,whicheye,address, \
+    #     phone,moneytotal,hospitalnumber,softcrystal,operatorname, isapproval) \
+    #     values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s, %s, %s)"
     bk = xlrd.open_workbook(xlsfilename_04)
     totalmoney = 0
     for ish in list(range(0,1)):
@@ -412,6 +413,7 @@ def readxlsex_tmp():
             ppid            = sh.row(indx)[3].value.strip()
             try:
                 operationtime   = datetime.date(1899,12,30) + datetime.timedelta(days=int(sh.row(indx)[4].value))
+                print(sh.row(indx)[0].value, name, operationtime, float(sh.row(indx)[9].value))
             except:                
                 tmp = sh.row(indx)[4].value.split('.')
                 print(sh.row(indx)[0].value, name, tmp, float(sh.row(indx)[9].value))
@@ -419,11 +421,11 @@ def readxlsex_tmp():
                 # print(type(operationtime))
                 # return
             # hospital        = sh.row(indx)[5].value
-            hospital        = "潮南民生医院"
+            hospital        = "国际眼科中心"
             whicheye        = sh.row(indx)[6].value.strip()
             address         = sh.row(indx)[7].value.strip()
             # county          = "潮南区"
-            county          = address[:2] + "区"
+            county          = address[:3] 
             
             if type(sh.row(indx)[8].value) == type("a"):
                 phone = sh.row(indx)[8].value.split("/")[0]
@@ -431,27 +433,35 @@ def readxlsex_tmp():
                 phone = str(int(sh.row(indx)[8].value))
             # print(sh.row(indx)[9].value)
             moneytotal      = "%.2f" % float(sh.row(indx)[9].value)
-            moneyfund       = "%.2f" % sh.row(indx)[10].value
-            if type(sh.row(indx)[10].value) == type("a"):
-                hospitalnumber = sh.row(indx)[10].value
-            else:
-                hospitalnumber = str(int(sh.row(indx)[10].value))
+            try:
+                moneyfund       = "%.2f" % sh.row(indx)[10].value
+            except:
+                moneyfund       = 1400.00
 
             try:
-                softcrystal     = sh.row(indx)[11].value
+                if type(sh.row(indx)[11].value) == type("a"):
+                    hospitalnumber = sh.row(indx)[11].value
+                else:
+                    hospitalnumber = str(int(sh.row(indx)[11].value))
+            except:
+                hospitalnumber = ""
+
+            # print(hospitalnumber)
+            try:
+                softcrystal     = sh.row(indx)[12].value
             except:
                 softcrystal     = "是"
-            operatorname    = "徐威"
-            # operatorname    = "黄丹珊"
-            # isapproval      = "同意"
-            isapproval      = "待审"
-            # approvaldate    = datetime.date(2013,12,31)
-            # approvalman     = "iefan"
+            # operatorname    = "黄梓材"
+            operatorname    = "黄丹珊"
+            isapproval      = "同意"
+            # isapproval      = "待审"
+            approvaldate    = datetime.date(2012,12,31)
+            approvalman     = "iefan"
             totalmoney += float(moneytotal)
             # print(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,isapproval, approvaldate, approvalman)
             
-            # tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,operatorname,isapproval, approvaldate, approvalman)
-            tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,hospitalnumber, softcrystal,operatorname, isapproval)
+            tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,operatorname,isapproval, approvaldate, approvalman)
+            # tmplstr =(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,hospitalnumber, softcrystal,operatorname, isapproval)
             if county not in COUNTY_CHOICES:
                 print("EEEEEEEEEEEEEEEEEEEEEEEEE", county, sh.name, tmplstr)
                 break
@@ -597,3 +607,5 @@ if __name__ == '__main__':
     # writexlsex()
     # writeXls_CC("D:/tmp")
     # writecsv()
+
+

@@ -213,7 +213,7 @@ class NotFitCcModifyForm(forms.ModelForm):
 
 class NotFitSelectCcForm(forms.ModelForm):
     '''不适合白内障手术查询条件表单'''
-    lstyears = [("", "--"), (2013,2013), (2014,2014)]
+    lstyears = [("", "--"), (2012,2012), (2013,2013), (2014,2014)]
     whichyears = forms.ChoiceField(choices = tuple(lstyears), label="年份")
     lstmonth = [(i,i) for i in list(range(1,13))]
     lstmonth.insert(0, ("", "--"))
@@ -227,7 +227,7 @@ class NotFitSelectCcForm(forms.ModelForm):
 
 class SelectCcForm(forms.ModelForm):
     '''白内障手术查询条件表单'''    
-    lstyears = [("", "--"), (2013,2013), (2014,2014)]
+    lstyears = [("", "--"), (2012,2012), (2013,2013), (2014,2014)]
     whichyears = forms.ChoiceField(choices = tuple(lstyears), label="年份")
     lstmonth = [(i,i) for i in list(range(1,13))]
     lstmonth.insert(0, ("", "--"))
