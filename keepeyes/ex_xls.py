@@ -14,12 +14,12 @@ xlsfilename2  = "D:\yk2013notcc.xls"
 # xlsfilename  = "yk2013cc.xls"
 
 def readxlsex2_tmp():
-    xlsfilename_04  = r"D:\我的文档\Tencent Files\165222664\FileRecv\1月\1月不适合手术患者名单（上报）.xls"
+    xlsfilename_04  = r"D:\我的文档\Tencent Files\165222664\FileRecv\5月\5月不适合手术患者名单（上报）.xls"
     strsql = "select name,sex,county,age,hospital,address,phone,\
         moneytotal,moneyfund,reason,hospitalID,checkdate,operatorname,\
         isapproval,approvaldate,approvalman from keepeyes_notfitoperationsmodel"
 
-    thisyear = 2
+    thisyear = 6
 
     cur = conn.cursor()
     # cur.execute(strsql)
@@ -30,8 +30,8 @@ def readxlsex2_tmp():
     COUNTY_CHOICES = ('金平区','龙湖区','濠江区','澄海区','潮阳区','潮南区','南澳县',)
 
     sql1 = "insert into keepeyes_notfitoperationsmodel(name,sex,county,age,hospital,address,phone,\
-        reason,checkdate,moneytotal,operatorname, isapproval) \
-         values(%s,%s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s)"
+        reason,hospitalID, checkdate,moneytotal,operatorname, isapproval) \
+         values(%s,%s, %s, %s,%s, %s,%s, %s,%s, %s,%s, %s, %s)"
     bk = xlrd.open_workbook(xlsfilename_04)
     totalmoney = 0
     for ish in list(range(0,1)):
@@ -66,19 +66,19 @@ def readxlsex2_tmp():
 
             hospital        = "国际眼科中心"
             
-            # if type(sh.row(indx)[11].value) == type("a"):
-            #     hospitalnumber = sh.row(indx)[11].value
-            # else:
-            #     hospitalnumber = str(int(sh.row(indx)[11].value))
+            if type(sh.row(indx)[8].value) == type("a"):
+                hospitalID = sh.row(indx)[8].value
+            else:
+                hospitalID = str(int(sh.row(indx)[8].value))
 
             operatorname    = "黄丹珊"
             isapproval      = "待审"
             
             totalmoney += float(moneytotal)
-            # print(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalnumber, softcrystal,isapproval, approvaldate, approvalman)
+            # print(name,sex,county, ppid,operationtime,hospital,whicheye,address,phone,moneytotal,moneyfund,hospitalID, softcrystal,isapproval, approvaldate, approvalman)
             
             tmplstr =(name,sex,county,age,hospital,address,phone,\
-                    reason,checkdate,moneytotal,operatorname, isapproval)
+                    reason,hospitalID, checkdate,moneytotal,operatorname, isapproval)
             print('------------', name, county)
             if county not in COUNTY_CHOICES:
                 print("EEEEEEEEEEEEEEEEEEEEEEEEE", county, sh.name, tmplstr)
@@ -602,8 +602,8 @@ def writeXls_CC(downloaddir):
 if __name__ == '__main__':
     # readxlsex()
     # readxlsex2()
-    # readxlsex2_tmp()
-    readxlsex_tmp()
+    readxlsex2_tmp()
+    # readxlsex_tmp()
     # writexlsex()
     # writeXls_CC("D:/tmp")
     # writecsv()

@@ -709,12 +709,14 @@ def downloadfile_list(request, unitname="", datayears=""):
     if int(request.user.unitgroup) not in lstauth:
         return render_to_response('noauth.html')
 
+    # print(request.user.unitgroup)
     if int(request.user.unitgroup) == 2 or int(request.user.unitgroup) == 1:
         unitname = request.user.unitname #单位名称
         unitreadonly = 1
     else:
         unitname = ""
         unitreadonly = 0
+
 
     curppname = ["单位名称", "年份", "更新日期", "文件", "下载"]
     curpp     = []
@@ -724,7 +726,11 @@ def downloadfile_list(request, unitname="", datayears=""):
             unitname    = request.POST['unitname']
             datayears       = request.POST['datayears']
     if unitreadonly == 1:
-        unitname = request.user.unitname
+        if int(request.user.unitgroup) == 1:
+            unitname = request.user.unitname[:3]
+        else:
+            unitname = request.user.unitname
+
     form = DownLoadFile_Form(initial={'unitname':unitname, 'datayears':datayears}) #页面查询窗体
 
     #=====================new page=================
